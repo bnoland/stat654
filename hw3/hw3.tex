@@ -1,0 +1,329 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Prob}{\mathrm{P}}
+
+\title{Homework 3}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\textit{Note}: I discussed some of these problems with Joseph Purtill and Don Walpola (both 654 students), but my write-up is my own work.
+
+\section*{Problems from the book}	
+
+\subsection*{Exercise 1.13}
+
+Let $x, y, z \in \mathcal{X}$.
+
+\begin{itemize}
+\item \textit{Reflexivity}: Since $x = x$, $x \leftrightarrow x$ trivially.
+
+\item \textit{Symmetry}: Suppose $x \leftrightarrow y$. If $x = y$, then $y \leftrightarrow x$ by reflexivity. If $x \rightarrow y$ and $y \rightarrow x$, then we see immediately that $y \leftrightarrow x$ as well.
+
+\item \textit{Transitivity}: Suppose $x \leftrightarrow y$ and $y \leftrightarrow z$. If $x = y$ or $y = z$, then $x \leftrightarrow z$ trivially. If $x \rightarrow y$ and $y \rightarrow x$, and $y \rightarrow z$ and $z \rightarrow y$, then we see that $x \rightarrow z$ and $z \rightarrow x$ by transitivity of $\rightarrow$. Hence $x \leftrightarrow z$.
+\end{itemize}
+Therefore $\leftrightarrow$ is an equivalence relation on $\mathcal{X}$.
+
+\subsection*{Exercise 1.14}
+
+Let $P$ denote the transition matrix of the chain. Let $C_1, \ldots, C_k$ denote the essential communicating classes of the chain, and let $S$ be the set of stationary distributions for the chain. First, note that $S$ is closed under convex combinations. To see this, let $\alpha_1, \ldots, \alpha_n$ be non-negative real numbers with $\alpha_1 + \cdots + \alpha_n = 1$, and let $\pi_1, \ldots, \pi_n \in S$. Then
+\begin{equation*}
+\sum_{x \in \mathcal{X}} \sum_{i=1}^n \alpha_i \pi_i(x) = \sum_{i=1}^n \alpha_i \sum_{x \in \mathcal{X}} \pi_i(x) = \sum_{i=1}^n \alpha_i = 1
+\end{equation*}
+and
+\begin{equation*}
+\sum_{x \in \mathcal{X}} \sum_{i=1}^n \alpha_i \pi_i(x) \geq 0 \quad \text{for any $x \in \mathcal{X}$},
+\end{equation*}
+and finally,
+\begin{equation*}
+\sum_{i=1}^n \alpha_i (\pi_i P) = \sum_{i=1}^n \alpha_i \pi_i.
+\end{equation*}
+Hence $\sum_{i=1}^n \alpha_i \pi_i \in S$. Let $\pi_{C_i}, \ldots, \pi_{C_k}$ be the unique stationary distributions corresponding to $C_1, \ldots, C_k$ (they exist and are unique since the restriction $P_{C_i}$ is irreducible for any $1 \leq i \leq k$). For each $1 \leq i \leq k$, define
+\begin{equation} \label{eq:1}
+\pi'_{C_i}(x) = \begin{cases}
+\pi_{C_i}(x) & \quad \text{if $x \in C_i$} \\
+0 & \quad \text{if $x \not \in C_i$}
+\end{cases} \quad \text{for each $x \in \mathcal{X}$}.
+\end{equation}
+Then it follows that $\pi'_{C_i}$ is stationary for $P$ for each $1 \leq i \leq k$, and hence $\pi'_{C_i} \in S$. Let $S'$ denote the set of convex combinations of $\pi'_{C_1}, \ldots, \pi'_{C_k}$. Then $S' \subseteq S$ by the comments above. Moreover, note that since $C_1, \ldots, C_k$ are disjoint, the definition (\ref{eq:1}) implies that $\pi'_{C_1}, \ldots, \pi'_{C_k}$ are linearly independent. Thus $S'$ is a polytope whose vertices are $\pi'_{C_1}, \ldots, \pi'_{C_k}$.
+
+To see that $S \subseteq S'$ as well, let $\pi \in S$. Let $1 \leq i \leq k$. Define
+\begin{equation*}
+\pi''_{C_i}(x) = \begin{cases}
+\frac{\pi(x)}{k_i} & \quad \text{if $x \in C_i$} \\
+0 & \quad \text{if $x \not \in C_i$}
+\end{cases} \quad \text{for each $x \in \mathcal{X}$},
+\end{equation*}
+where $k_i = \sum_{y \in C_i} \pi(y)$. Thus $\sum_{y \in \mathcal{X}} \pi''_{C_i}(x) = 1$, so that $\pi''_{C_i}$ is a valid probability distribution. Moreover, since $\pi$ is stationary for $P$ it follows that $\pi''_{C_i}$ is also stationary for $P$, and since the stationary for $C_i$ is unique, it follows that $\pi''_{C_i} = \pi'_{C_i}$. Thus, for any $x \in \mathcal{X}$,
+\begin{equation*}
+\pi(x) = \sum_{i=1}^k k_i \pi'_{C_i}(x),
+\end{equation*}
+and hence $\pi(x) = \sum_{i=1}^k k_i \pi'_{C_i}$. But also,
+\begin{equation*}
+1 = \sum_{x \in \mathcal{X}} \pi(x) = \sum_{x \in \mathcal{X}} \sum_{i=1}^k k_i \pi'_{C_i}(x) = \sum_{i=1}^k k_i \sum_{x \in \mathcal{X}} \pi'_{C_i}(x) = \sum_{i=1}^k k_i.
+\end{equation*}
+Thus $\pi$ is a convex combination of $\pi'_{C_1}, \ldots, \pi'_{C_k}$. Hence $\pi \in S'$, so that $S = S'$.
+
+\section*{The Strong Markov Property}
+
+\subsection*{Exercise 1}
+
+\begin{equation*}
+I\{\tau < \infty\} = I\left\{\bigcup_{t = 0}^\infty \{\tau = t\} \right\} = \sum_{t = 0}^\infty I\{\tau = t\}
+\end{equation*}
+
+\subsection*{Exercise 2}
+
+By exercise 1 and the Dominated Convergence Theorem,
+\begin{align*}
+\E_x[I\{\tau < \infty\} f(X_\tau, \ldots, X_{\tau + m})] &= \E_x \left[\sum_{t=0}^\infty I\{\tau = t\} f(X_\tau, \ldots, X_{\tau + m})\right] \\
+&= \sum_{t=0}^\infty \E_x[I\{\tau = t\} f(X_\tau, \ldots, X_{\tau + m})] \\
+&= \sum_{t=0}^\infty \E_x \{ \E_x[f(X_\tau, \ldots, X_{\tau + m}) | \tau = t] I\{\tau = t\}\} \\
+&= \sum_{t=0}^\infty \E_x \{ \E_{X_\tau} [f(X_0, \ldots, X_m)] I\{\tau = t\}\} \\
+&= \E_x \left\{\sum_{t=0}^\infty \E_{X_\tau} [f(X_0, \ldots, X_m)] I\{\tau = t\} \right\} \\
+&= \E_x [I\{\tau < \infty\} F(X_\tau)].
+\end{align*}
+Note that the Dominated Convergence Theorem justified switching sums and expectations in the above. As an example, note that if for each $n \geq 1$ we set
+\begin{equation*}
+Y_n = \sum_{t=0}^n I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m})
+\end{equation*}
+and
+\begin{equation*}
+Y = \sum_{t=0}^\infty I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m})
+\end{equation*}
+and $Z = 1$, then since $E(|Z|) = 1 < \infty$ trivially, and $\Prob\{|Y_n| \leq |Z|\} = 1$, the Dominated Convergence Theorem implies that
+\begin{align*}
+\E_x \left[\sum_{t=0}^\infty I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m}) \right] &= \E_x(Y) \\
+&= \lim_{n \to \infty} \E_x(Y_n) \\
+&= \lim_{n \to \infty} \E_x \left[\sum_{t=0}^n I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m}) \right] \\
+&= \lim_{n \to \infty} \sum_{t=0}^n \E_x [I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m})] \\
+&= \sum_{t=0}^\infty \E_x [I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m})].
+\end{align*}
+
+\subsection*{Exercise 3}
+
+\begin{align*}
+\E_x[I\{\tau < \infty\} f(X_\tau, \ldots, X_{\tau + m})] &= \E_x [I\{\tau < \infty\} F(X_\tau)] \\
+&= \E_x[I\{\tau < \infty\} F(z)] \\
+&= F(z) \E_x[I\{\tau < \infty\}] \\
+&= F(z) \Prob_x\{\tau < \infty\} \\
+\end{align*}
+
+\subsection*{Exercise 4}
+
+For any $(x_0, \ldots, x_m) \in \mathcal{X}^{m+1}$,
+\begin{equation*}
+f(x_0, \ldots, x_m) = \sum_{(y_0, \ldots, y_m) \in \mathcal{X}^{m+1}} I\{x_0 = y_0, \ldots, x_m = y_m\} f(y_0, \ldots, y_m).
+\end{equation*}
+(The indicator functions in the sum are maps $\mathcal{X}^{m+1} \to \{0, 1\}$).
+
+As for the generalization,
+\begin{align*}
+% Hacky alignment is hacky.
+\E_x [&I\{\tau < \infty\} f(X_\tau, \ldots, X_{\tau+m})] \\
+&= \sum_{(y_0, \ldots, y_m) \in \mathcal{X}^{m+1}} \E_x [I\{\tau < \infty\} I\{X_\tau = y_0, \ldots, X_{\tau+m} = y_m\} f(y_0, \ldots, y_m)] \\
+&= \sum_{(y_0, \ldots, y_m) \in \mathcal{X}^{m+1}} f(y_0, \ldots, y_m) \E_x [I\{\tau < \infty\} I\{X_\tau = y_0, \ldots, X_{\tau+m} = y_m\}] \\
+&= \sum_{(y_0, \ldots, y_m) \in \mathcal{X}^{m+1}} f(y_0, \ldots, y_m) \E_x \{I\{\tau < \infty\} \E_{X_\tau} [I\{X_\tau = y_0, \ldots, X_{\tau+m} = y_m\}] \}
+\end{align*}
+by way of exercise 2.
+
+\subsection*{Exercise 5}
+
+(Note that we must have $C_m = \mathcal{X}^{m+1}$ for each $m \geq 0$ in order for this problem to make sense). We have the following:
+\begin{align*}
+\E_x[&g(X_0, \ldots, X_\tau) I\{\tau < \infty\} f(X_\tau, \ldots, X_{\tau+m})] \\
+&= \E_x\left[\sum_{t=0}^\infty g(X_0, \ldots, X_\tau) I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m})\right] \\
+&= \E_x \left\{ \E_x\left[\sum_{t=0}^\infty g(X_0, \ldots, X_\tau) I\{\tau = t\} f(X_\tau, \ldots, X_{\tau+m}) | \tau = t \right] I\{\tau = t\} \right \} \\
+&= \E_x \left\{ \E_x\left[\sum_{t=0}^\infty g(X_0, \ldots, X_t) f(X_\tau, \ldots, X_{\tau+m})\right] I\{\tau = t\} \right \} \\
+&= \E_x \left\{ \E_x\left[\sum_{t=0}^\infty \sum_{(y_0, \ldots, y_t) \in \mathcal{X}^{t+1}} g(y_0, \ldots, y_t) I\{X_0 = y_0, \ldots, X_t = y_t\} f(X_\tau, \ldots, X_{\tau+m})\right] I\{\tau = t\} \right \} \\
+&= \sum_{t=0}^\infty \E_x \left\{ \E_x\left[\sum_{(y_0, \ldots, y_t) \in \mathcal{X}^{t+1}} g(y_0, \ldots, y_t) I\{X_0 = y_0, \ldots, X_t = y_t\} f(X_\tau, \ldots, X_{\tau+m})\right] I\{\tau = t\} \right \} \\
+&= \sum_{t=0}^\infty \E_x \left\{ \sum_{(y_0, \ldots, y_t) \in \mathcal{X}^{t+1}} g(y_0, \ldots, y_t) I\{X_0 = y_0, \ldots, X_t = y_t\} \E_x\left[ f(X_\tau, \ldots, X_{\tau+m})\right] I\{\tau = t\} \right \} \\
+&= \sum_{t=0}^\infty \E_x \left\{g(X_0, \ldots, X_t) \E_x\left[ f(X_\tau, \ldots, X_{\tau+m})\right] I\{\tau = t\} \right \} \\
+&= \sum_{t=0}^\infty \E_x \left\{g(X_0, \ldots, X_t) \E_{X_\tau}\left[ f(X_0, \ldots, X_m)\right] I\{\tau = t\} \right \} \\
+&= \E_x \left\{\sum_{t=0}^\infty g(X_0, \ldots, X_t) \E_{X_\tau}\left[ f(X_0, \ldots, X_m)\right] I\{\tau = t\} \right \} \\
+&= \E_x \left\{g(X_0, \ldots, X_\tau) \E_{X_\tau}\left[ f(X_0, \ldots, X_m)\right] I\{\tau < \infty\} \right \} \\
+&= \E_x \left\{g(X_0, \ldots, X_\tau) F(X_\tau) I\{\tau < \infty\} \right \}.
+\end{align*}
+Note that since the state space $\mathcal{X}$ is finite, $\mathcal{X}^{t+1}$ is finite for any $t \geq 0$, and so $g$ is bounded in the expression above. Thus the Dominated Convergence Theorem justifies the switching of infinite sums and expectations.
+
+\subsection*{Exercise 6}
+
+The sequence $(Y_t)$ satisfies the Markov property since for any states $y_0, y_1, \ldots, y_t$ we have
+\begin{align*}
+\Prob \{Y_t = y_t | Y_{t-1} = y_{t-1}, \ldots, Y_0 = y_0\} &= \Prob \{X_{t + \tau} = y_t | X_{t-1+\tau} = y_{t-1}, \ldots, X_\tau = y_0\} \\
+&= \Prob \{X_{t + \tau} = y_t | X_{t-1+\tau} = y_{t-1}\} \\
+&= \Prob \{Y_t = y_t | Y_{t-1} = y_{t-1}\}
+\end{align*}
+because the original chain $(X_t)$ satisfies the Markov property. Moreover, for any states $x$ and $y$,
+\begin{equation*}
+\Prob \{Y_{t+1} = y | Y_t = x\} = \Prob\{X_{t+\tau+1} = y | X_{t+\tau} = x\} = P(x, y).
+\end{equation*}
+Finally, for any state $y$, we immediately have $\Prob\{Y_0 = y\} = \Prob_x\{X_\tau = y\}$.
+
+\subsection*{Exercise 7}
+
+I will proceed by induction on $r$. When $r = 1$ the result holds trivially. Now let $r > 1$ and assume that $\E_x(\tau_x^r) = r\E_x(\tau_x^1)$. We have:
+\begin{equation*}
+\tau_x^{r+1} = \inf\{t > \tau_x^r : X_t = x\} = \inf\{t - \tau_x^r > 0 : X_t = x\} = \inf\{t' > 0 : X_{t' + \tau_x^r} = x\} = \tau_x^1 + \tau_x^r,
+\end{equation*}
+and thus $\E_x(\tau_x^{r+1}) = \E_x(\tau_x^r) + \E_x(\tau_x^1) = (r+1) \E_x(\tau_x^1)$ by the inductive hypothesis. So the result follows by induction.
+
+Since the chain is irreducible (we need this assumption to use Lemma 1.13), $\E_x(\tau_x^+) < \infty$ by Lemma 1.13, and thus for any $r > 0$,
+\begin{equation*}
+0 < \E_x(\tau^r_x) = r\E_x(\tau^1_x) = r\E_x(\tau^+_x) < \infty.
+\end{equation*}
+Thus, by the Markov inequality, for any $t > 0$,
+\begin{equation*}
+\Prob_x\{\tau_x^r < \infty\}^c = \Prob_x\left\{\bigcap_{s=0}^\infty \{\tau_x^r \geq s \} \right\} \leq \Prob_x\{\tau_x^r \geq t\} \leq \frac{\E_x(\tau_x^r)}{t},
+\end{equation*}
+so that
+\begin{equation*}
+\Prob_x\{\tau_x^r < \infty\}^c \leq \lim_{t \to \infty} \frac{\E_x(\tau_x^r)}{t} = 0,
+\end{equation*}
+and hence $\Prob_x\{\tau_x^r < \infty\} = 1$ upon taking the complement.
+
+Let $f, g : \cup_{m=0}^\infty \to \{0, 1\}$. Then
+\begin{align*}
+\E_x[&g(X_0, \ldots, X_{\tau_x^1})f(X_{\tau_x^1}, \ldots, X_{\tau_x^r})] \\
+&= \Prob_x\{g(X_0, \ldots, X_{\tau_x^1}) = 1, f(X_{\tau_x^1}, \ldots, X_{\tau_x^r}) = 1\} \\
+&= \Prob_x\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^r}) = 1 | g(X_0, \ldots, X_{\tau_x^1}) = 1\} \Prob_x\{g(X_0, \ldots, X_{\tau_x^1}) = 1\} \\
+&= \Prob_x\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^r}) = 1\} \Prob_x\{g(X_0, \ldots, X_{\tau_x^1}) = 1\} \\
+&= \E_x[g(X_0, \ldots, X_{\tau_x^1})] \E_x[f(X_{\tau_x^1}, \ldots, X_{\tau_x^r})]
+\end{align*}
+by way of the Markov property. In addition,
+\begin{align*}
+\E_x[f(X_{\tau_x^1}, \ldots, X_{\tau_x^r})] &= \Prob_x\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^r}) = 1\} \\
+&= \sum_{t=0}^\infty \Prob_x\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^r}) = 1 | \tau_x^1 = t\} \Prob_x\{\tau_x^1 = t\} \\
+&= \sum_{t=0}^\infty \Prob_x\{f(X_0, \ldots, X_{\tau_x^{r-1}}) = 1\} \Prob_x\{\tau_x^1 = t\} \\
+&= \Prob_x\{f(X_0, \ldots, X_{\tau_x^{r-1}}) = 1\} \Prob_x\{\tau_x^1 < \infty\} \\
+&= \Prob_x\{f(X_0, \ldots, X_{\tau_x^{r-1}}) = 1\} = \E_x[f(X_0, \ldots, X_{\tau_x^{r-1}})]
+\end{align*}
+due to the fact that $\tau_x^r = \tau_x^{r-1} + \tau_x^1$ for any $r > 1$, and $\Prob\{\tau_x^1 < \infty\} = 1$. Therefore,
+\begin{align*}
+\E_x[g(X_0, \ldots, X_{\tau_x^1})f(X_{\tau_x^1}, \ldots, X_{\tau_x^r})] &= \E_x[g(X_0, \ldots, X_{\tau_x^1})] \E_x[f(X_{\tau_x^1}, \ldots, X_{\tau_x^r})] \\
+&= \E_x[g(X_0, \ldots, X_{\tau_x^1})] \E_x[f(X_0, \ldots, X_{\tau_x^{r-1}})].
+\end{align*}
+In particular,
+\begin{align*}
+\E_x[g(X_0, \ldots, X_{\tau_x^1})f(X_{\tau_x^1}, \ldots, X_{\tau_x^2})] &= \Prob_x\{g(X_0, \ldots, X_{\tau_x^1}) = 1, f(X_{\tau_x^1}, \ldots, X_{\tau_x^2}) = 1\} \\
+&= \Prob_x\{g(X_0, \ldots, X_{\tau_x^1}) = 1\} \Prob_x\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^2}) = 1\},
+\end{align*}
+so that the events $\{g(X_0, \ldots, X_{\tau_x^1}) = 1\}$ and $\{f(X_{\tau_x^1}, \ldots, X_{\tau_x^2}) = 1\}$ are independent.
+
+\subsection*{Exercise 8}
+
+Using the fact that $\tau_x^2 = \tau_x^1 + \tau_x^1$, we have for any $y \in \{0, 1\}$,
+\begin{equation*}
+\Prob_x\{h(X_{\tau_x^1}, \ldots, X_{\tau_x^2}) = y\} = \Prob_x\{h(X_0, \ldots, X_{\tau_x^1}) = y\},
+\end{equation*}
+and so $h(X_{\tau_x^1}, \ldots, X_{\tau_x^2})$ and $h(X_0, \ldots, X_{\tau_x^1})$ are identically distributed. Moreover, it follows from exercise 7 that $h(X_{\tau_x^1}, \ldots, X_{\tau_x^2})$ and $h(X_0, \ldots, X_{\tau_x^1})$ are independent. This is due to the fact that the events $\{h(X_{\tau_x^1}, \ldots, X_{\tau_x^2}) = x\}$ and $\{h(X_0, \ldots, X_{\tau_x^1}) = y\}$ for any choice of $x, y \in \{0, 1\}$ by the final result of exercise 7.
+
+\section*{On Proposition 1.14(i)}
+
+\subsection*{Exercise 1}
+\nullstepcounter{subsection}
+
+\textit{Generalization}: Fix a state $z \in \mathcal{X}$, and define a function $\tilde{\pi}$ by
+\begin{equation*}
+\tilde{\pi} = \sum_{t=0}^\infty \Prob_z\{X_t = y, \tau > t\}.
+\end{equation*}
+If $\Prob_z\{\tau < \infty, X_\tau = z\} = 1$, then $\tilde{\pi}$ is stationary for the transition matrix $P$.
+
+\textit{Proof}: Since $\Prob_z\{\tau < \infty, X_\tau = z\} = 1$, we have $\Prob_z\{\tau = \tau_z^r\} = 1$ for some $r > 0$. Hence, by exercise 7 of the Strong Markov Property problem, $\E_z(\tau) < \infty$, and hence
+\begin{equation*}
+\infty > \E_z(\tau) = E_z(\tau_z^r) = \sum_{t=0}^\infty \Prob_z\{\tau > t\} \geq \sum_{t=0}^\infty \Prob_z\{X_t = y, \tau > t\} = \tilde{\pi}(y) \geq 0,
+\end{equation*}
+so that $\tilde{\pi}(y)$ is finite for every $y \in \mathcal{X}$. To see that $\tilde{\pi}$ is stationary, let $y \in \mathcal{X}$. Then
+\begin{equation} \label{eq:1}
+\sum_{x \in \mathcal{X}} \tilde{\pi}(x) P(x, y) = \sum_{x \in \mathcal{X}} \sum_{t=0}^\infty \Prob_z\{X_t = y, \tau > t\} P(x, y).
+\end{equation}
+Note that for any $x \in \mathcal{X}$,
+\begin{align*}
+\Prob_z\{X_t = x, X_{t+1} = y, \tau \geq t + 1\} &= \Prob_z\{X_t = x, \tau \geq t+1\} \Prob\{X_{t+1} = y | X_t = x, \tau \geq t+1\} \\
+&= \Prob_z\{X_t = x, \tau \geq t+1\} P(x, y),
+\end{align*}
+since the Markov property implies that
+\begin{equation*}
+P(x, y) = \Prob\{X_{t+1} = y | X_t = x\} = \Prob\{X_{t+1} = y | X_t = x, \tau \geq t+1\}
+\end{equation*}
+because the event $\{\tau \geq t+1\}$ depends solely upon $X_0, \ldots, X_t$. Therefore (\ref{eq:1}) becomes
+\begin{align*}
+\sum_{x \in \mathcal{X}} \tilde{\pi}(x) P(x, y) &= \sum_{x \in \mathcal{X}} \sum_{t=0}^\infty \Prob_z\{X_t = y, \tau > t\} P(x, y) \\
+&= \sum_{x \in \mathcal{X}} \sum_{t=0}^\infty \Prob_z\{X_t = x, X_{t+1} = y, \tau \geq t + 1\} \\
+&= \sum_{t=0}^\infty \sum_{x \in \mathcal{X}} \Prob_z\{X_t = x, X_{t+1} = y, \tau \geq t + 1\} \\
+&= \sum_{t=0}^\infty \Prob_z\{X_{t+1} = y, \tau \geq t + 1\} \\
+&= \sum_{t=1}^\infty \Prob_z\{X_t = y, \tau \geq t\} \\
+&= \tilde{\pi}(y) - \Prob_z\{X_0 = y, \tau > 0\} + \sum_{t=1}^\infty \Prob_z\{X_t = y, \tau = t\} \\
+&= \tilde{\pi}(y) - \Prob_z\{X_0 = y, \tau > 0\} + \Prob_z\{X_\tau = y\} - \Prob_z\{X_\tau = y, \tau = 0\}
+\end{align*}
+If $y = z$, then $\Prob_z\{X_\tau = y\} = 1$, and since the events $\{X_0 = y, \tau > 0\}$ and $\{X_\tau = y, \tau = 0\}$ are disjoint, it follows that $\Prob_z\{X_0 = y, \tau > 0\} = 1$ and $\Prob_z\{X_\tau = y, \tau = 0\} = 0$, or $\Prob_z\{X_0 = y, \tau > 0\} = 0$ and $\Prob_z\{X_\tau = y, \tau = 0\} = 1$. Thus in this case
+\begin{equation*}
+\sum_{x \in \mathcal{X}} \tilde{\pi}(x) P(x, y) = \tilde{\pi}(y).
+\end{equation*}
+In addition, if $y \neq z$, then $\Prob_z\{X_0 = y, \tau > 0\} = \Prob_z\{X_\tau = y\} = \Prob_z\{X_\tau = y, \tau = 0\} = 0$, and we get the same result. Therefore $\tilde{\pi}$ is stationary for $P$.
+
+\subsection*{Exercise 2}
+
+For any $t \geq 0$, define a map $p_t : \mathcal{X}^{t+1} \to \{0, 1\}$ such that for any $(x_0, \ldots, x_t) \in \mathcal{X}^{t+1}$,
+\begin{itemize}
+\item
+$p_t(x_0, \ldots, x_t) = 1$ if $x_t = z$, $\mathcal{X} \subseteq \{x_1, \ldots, x_t\}$, and for every $0 \leq t' < t$, $x_{t'} \neq z$ or $\mathcal{X} \not \subseteq \{x_1, \ldots, x_{t'}\}$;
+
+\item
+$p_t(x_0, \ldots, x_t) = 0$ otherwise.
+
+\end{itemize}
+Then the event $\{\tau = t\} = \{p_t(x_0, \ldots, x_t) = 1\}$, so that $\tau$ is a stopping time.
+
+Note that since the chain is irreducible, it is possible to order the states $x_0, \ldots, x_n \in \mathcal{X}$ of the chain to yield a path $z = x_0 \rightarrow x_1 \rightarrow x_2 \rightarrow \cdots \rightarrow x_n \rightarrow x_0 = z$ that passes through every state in the chain and returns to the starting state $z$. Thus we can write
+\begin{equation*}
+0 < \E_z(\tau) = \E_{x_0}(\tau_{x_1}^+) + \E_{x_1}(\tau_{x_2}^+) + \cdots + \E_{x_n}(\tau_{x_0}^+) < \infty
+\end{equation*}
+by way of Lemma 1.13. Therefore, the Markov inequality implies that for any $t > 0$,
+\begin{equation*}
+\Prob_z\{\tau < \infty\}^c = \Prob_z\left\{\bigcap_{s=0}^\infty \{\tau \geq s\} \right\} \leq \Prob_z\{\tau \geq t\} \leq \frac{\E_z(\tau)}{t},
+\end{equation*}
+so that
+\begin{equation*}
+\Prob_z\{\tau < \infty\}^c \leq \lim_{t \to \infty} \frac{\E_z(\tau)}{t} = 0,
+\end{equation*}
+and therefore $\Prob_z\{\tau < \infty\} = 1$ upon taking the complement. Thus
+\begin{equation*}
+\Prob_z\{\tau < \infty, X_\tau = z\} = \Prob_z\{X_\tau = z\} = 1.
+\end{equation*}
+
+\end{document}

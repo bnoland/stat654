@@ -1,0 +1,443 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Prob}{P}
+
+\title{Homework 7}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Independence}
+
+\subsection*{Exercise 1}
+
+Let $k \geq 1$, and let $x_1, \ldots, x_k \in \mathcal{X}$. Then
+\begin{align*}
+\Prob_u\{&U_k = x_k | U_{k-1} = x_{k-1}, \ldots, U_1 = x_1, U_0 = u\} \\
+&= \Prob_u\{f(U_{k-1}, Z_{T_k}) = x_k | f(U_{k-2}, Z_{T_{k-1}}) = x_{k-1}, \ldots, f(U_0, Z_{T_1}) = x_1, U_0 = u\} \\
+&= \Prob_u\{f(x_{k-1}, Z_{T_k}) = x_k | f(x_{k-2}, Z_{T_{k-1}}) = x_{k-1}, \ldots, f(u, Z_{T_1}) = x_1, U_0 = u\} \\
+&= \Prob_u\{f(x_{k-1}, Z_{T_k}) = x_k\},
+\end{align*}
+since the event $\{f(x_{k-1}, Z_{T_k}) = x_k\}$ depends solely upon $Z_{T_k}$, while the event $\{f(U_{k-2}, Z_{T_{k-1}}) = x_{k-1}, \ldots, f(U_0, Z_{T_1}) = x_1, U_0 = u\}$ depends solely upon $Z_{T_1}, \ldots, Z_{T_{k-1}}$. Thus, by how the random mapping representation was defined,
+\begin{equation*}
+\Prob_u\{U_k = x_k | U_{k-1} = x_{k-1}, \ldots, U_1 = x_1, U_0 = u\} = \Prob_u\{f(x_{k-1}, Z_{T_k}) = x_k\} = P(x_{k-1}, x_k).
+\end{equation*}
+Hence $(U_k)_{k=0}^\infty$ is a Markov chain on $\mathcal{X}$ with transition matrix $P$. A similar argument shows that $(V_k)_{k=0}^\infty$ is also a Markov chain with transition matrix $P$. Hence $(U_k, V_k)_{k=0}^\infty$ is a coupling of Markov chains with transition matrix $P$.
+
+\subsection*{Exercise 2}
+
+Say $h : \mathcal{X}^{2(k+1)} \to \{0, 1\}$ (the map $f$ is already defined). Then we have
+\begin{align*}
+\Prob_{u, v}\{&h(U_0, \ldots, U_k, V_0, \ldots, V_k) = 1, T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{T_k}), v, \ldots, g(V_{k-1}, Z_{T_k})) = 1, T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{t_k}), v, \ldots, g(V_{k-1}, Z_{t_k})) = 1, T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{t_k}), v, \ldots, g(V_{k-1}, Z_{t_k})) = 1\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\},
+\end{align*}
+where the independence of the events $\{h(u, \ldots, f(U_{k-1}, Z_{t_k}), v, \ldots, g(V_{k-1}, Z_{t_k})) = 1\}$ and $\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\}$ is due to the fact that the $T_j$'s are independent of the $Z_t$'s. However, since the $Z_t$'s are IID, we have the following equality:
+\begin{align*}
+\Prob_{u, v}\{&h(u, \ldots, f(U_{k-1}, Z_{t_k}), v, \ldots, g(V_{k-1}, Z_{t_k})) = 1\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{T_k}), v, \ldots, g(V_{k-1}, Z_{T_k})) = 1\}.
+\end{align*}
+Thus,
+\begin{align*}
+\Prob_{u, v}\{&h(U_0, \ldots, U_k, V_0, \ldots, V_k) = 1, T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{t_k}), v, \ldots, g(V_{k-1}, Z_{t_k})) = 1\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(u, \ldots, f(U_{k-1}, Z_{T_k}), v, \ldots, g(V_{k-1}, Z_{T_k})) = 1\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(U_0, \ldots, U_k, V_0, \ldots, V_k) = 1\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\}.
+\end{align*}
+Hence the events $\{h(U_0, \ldots, U_k, V_0, \ldots, V_k) = 1\}$ and $\{T_1 = t_1, \ldots, T_k = t_k, \ldots, T_m = t_m\}$ are independent.
+
+\subsection*{Exercise 3}
+
+Note that the event $\{\nu = q\}$ is determined by $U_0, \ldots, U_q$ and $V_0, \ldots, V_q$. Thus we can write
+\begin{equation*}
+\{\nu = q\} = \{h(U_0, \ldots, U_q, V_0, \ldots, V_q) = 1\}
+\end{equation*}
+for some map $h : \mathcal{X}^{2(q+1)} \to \{0, 1\}$. Thus, for any non-negative integers $t_1, \ldots, t_m$, we have
+\begin{align*}
+\Prob_{u, v}\{&\nu = q, T_1 = t_1, \ldots, T_q = t_q, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(U_0, \ldots, U_q, V_0, \ldots, V_q) = 1, T_1 = t_1, \ldots, T_q = t_q, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{h(U_0, \ldots, U_q, V_0, \ldots, V_q) = 1\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_q = t_q, \ldots, T_m = t_m\} \\
+&= \Prob_{u, v}\{\nu = q\} \Prob_{u, v}\{T_1 = t_1, \ldots, T_q = t_q, \ldots, T_m = t_m\}
+\end{align*}
+by Exercise 3. Thus the event $\{\nu = q\}$ is independent of $T_1, \ldots, T_m$.
+
+\subsection*{Exercise 4}
+
+Note that for any $t \geq 0$, we have
+\begin{equation*}
+X_{t+1}(1) = f(X_t(1), Z_{t+1}) I\{C_{t+1} = 1\} + X_t(1) I\{C_{t+1} \neq 1\}.
+\end{equation*}
+For simplicitly of notation, in what follows I will simply write $X_{t+1}(1) = h(X_t(1), Z_{t+1}, C_{t+1})$. Let $x_1, \ldots, x_{t+1} \in \mathcal{X}$ and $x_0 = x(1)$. Then
+\begin{align*}
+\Prob\{&X_{t+1}(1) = x_{t+1} | X_t(1) = x_t, \ldots, X_1(1) = x_1, X_0 = x_0\} \\
+&= \Prob\{h(X_t, Z_{t+1}, C_{t+1}) = x_{t+1} | h(X_{t-1}, Z_t, C_t) = x_t, \ldots, h(X_0, Z_1, C_1) = x_1, X_0 = x_0\} \\
+&= \Prob\{h(x_t, Z_{t+1}, C_{t+1}) = x_{t+1} | h(x_{t-1}, Z_t, C_t) = x_t, \ldots, h(x_0, Z_1, C_1) = x_1, X_0 = x_0\} \\
+&= \Prob\{h(x_t, Z_{t+1}, C_{t+1}) = x_{t+1}\},
+\end{align*}
+since the event $\{h(x_t, Z_{t+1}, C_{t+1}) = x_{t+1}\}$ depends solely upon $Z_{t+1}$ and $C_{t+1}$, while the event $\{h(x_{t-1}, Z_t, C_t) = x_t, \ldots, h(x_0, Z_1, C_1) = x_1, X_0 = x_0\}$ depends solely upon $Z_1, \ldots, Z_t$ and $C_1, \ldots, C_t$. If $x_{t+1} = x_t$, then this becomes
+\begin{align*}
+\Prob\{h(x_t, Z_{t+1}, C_{t+1}) = x_t\} &= \Prob\{f(x_t, Z_{t+1}) = x_t, C_{t+1} = 1\} + \Prob\{C_{t+1} \neq 1\} \\
+&= \Prob\{f(x_t, Z_{t+1}) = x_t\} \Prob\{C_{t+1} = 1\} + \Prob\{C_{t+1} \neq 1\} \\
+&= P(x_t, x_t) \frac{1}{d} + \left(1 - \frac{1}{d}\right).
+\end{align*}
+On the other hand, if $x_{t+1} \neq x_t$, we get
+\begin{align*}
+\Prob\{h(x_t, Z_{t+1}, C_{t+1}) = x_{t+1}\} &= \Prob\{f(x_t, Z_{t+1}) = x_{t+1}, C_{t+1} = 1\} \\
+&= \Prob\{f(x_t, Z_{t+1}) = x_{t+1}\} \Prob\{C_{t+1} = 1\} \\
+&= P(x_t, x_{t+1}) \frac{1}{d}.
+\end{align*}
+Thus $(X_t(1))_{t=0}^\infty$ is a Markov chain on $\mathcal{X}$ with transition matrix $Q$ given by
+\begin{equation*}
+Q(x, y) = \begin{cases}
+P(x, y) / d + (1 - 1/d) &\quad \text{if $x = y$} \\
+P(x, y) / d &\quad \text{if $x \neq y$}
+\end{cases} \quad \text{for any $x, y \in \mathcal{X}$}.
+\end{equation*}
+A similar argument shows that $(Y_t(1))_{t=0}^\infty$ is also a Markov chain on $\mathcal{X}$ with transition matrix $Q$.
+
+\subsection*{Exercise 5}
+
+Note that for any $k \geq 0$, we have
+\begin{equation*}
+T_{k+1} - T_k = \min\{t > 0 : C_{t+T_k} = 1\}.
+\end{equation*}
+Thus, for any $t > 0$, the independence of the $C_t$'s implies that
+\begin{align*}
+\Prob\{T_{k+1} - T_k = t\} &= \Prob\{C_{t+T_k} = 1, C_{t-1+T_k} \neq 1, \ldots, C_{1+T_k} \neq 1\} \\
+&= \Prob\{C_{t+T_k} = 1\} \Prob\{C_{t-1+T_k} \neq 1\} \cdots \Prob\{C_{1+T_k} \neq 1\} \\
+&= \frac{1}{d}\left(1 - \frac{1}{d}\right)^{t-1}.
+\end{align*}
+Moreover, since $T_{k+1} > T_k$ by definition,
+\begin{equation*}
+\Prob\{T_{k+1} - T_k = t\} = 0 \quad \text{for any $t \leq 0$}.
+\end{equation*}
+Thus $(T_{k+1} - T_k) \sim \mathrm{geometric}(1/d)$, so that
+\begin{equation*}
+\E(T_{k+1} - T_k) = \frac{1}{1/d} = d
+\end{equation*}
+for any $k \geq 0$.
+
+\subsection*{Exercise 6}
+
+It follows from Exercise 3 that $\nu$ is independent of $T_0, T_1, \ldots$. Moreover, it follows from Exercise 5 that the random variables $(T_{k+1} - T_k)$, $k \geq 0$, are IID $\mathrm{geometric(1/d)}$. Thus by Exercise 5.3 of the book,
+\begin{equation*}
+\E(T_\nu) = \E(T_\nu - T_0) = \E\left(\sum_{k=1}^\nu (T_k - T_{k-1})\right) = d\E(\nu),
+\end{equation*}
+since $\E(T_{k+1} - T_k) = d$ for every $k \geq 0$, as noted in Exercise 5.
+
+\section*{Problems from the book}
+
+\subsection*{Exercise 5.1}
+\nullstepcounter{subsection}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+Let $P$ denote the transition matrix of the coupling $(X_t, Y_t)_{t=0}^\infty$. Thus each of the chains $(X_t)_{t=0}^\infty$ and $(Y_t)_{t=0}^\infty$ has transition matrix $P$ by definition. Since $X_0 \sim \mu$ and $Y_0 \sim \nu$, $X_t \sim \mu P^t$ and $Y_t \sim \nu P^t$ for any $t \geq 0$, so that $(X_t, Y_t)$ is a coupling of the distributions $\mu P^t$ and $\nu P^t$. Thus by Proposition 4.7,
+\begin{equation*}
+\Vert \mu P^t - \nu P^t \Vert_\mathrm{TV} \leq \Prob_{\mu, \nu}\{X_t \neq Y_t\} = \Prob_{\mu, \nu}\{\tau_\mathrm{couple} > t\}.
+\end{equation*}
+
+\item
+Assume that $P$ is irreducible and aperiodic with stationary distribution $\pi$. Thus for any $t \geq 0$, $\pi P^t = \pi$. Let $x \in \mathcal{X}$. Putting $\mu = \delta_x$ and $\nu = \pi$ in the result of part (a) yields
+\begin{equation*}
+\Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV} \leq \Prob_{x, \pi}\{\tau_\mathrm{couple} > t\}.
+\end{equation*}
+It remains to show that the chains $(X_t)_{t=0}^\infty$ and $(Y_t)_{t=0}^\infty$ (assumed independent of each other) coalesce almost surely. Since $P$ is irreducible and aperiodic, Proposition 1.7 implies that there exists an integer $r_0 > 0$ such that $P^r(w, z) > 0$ for every $w, z \in \mathcal{X}$ and $r \geq r_0$. Let $\alpha = \min_{w, z \in \mathcal{X}} P^{r_0}(w, z)$. Then $\alpha > 0$. Now fix a state $x_0 \in \mathcal{X}$. Then
+\begin{equation*}
+\Prob_{x, \pi}\{X_{r_0} = x_0, Y_{r_0} = x_0\} \leq \Prob_{x, \pi}\{\tau_\mathrm{couple} \leq r_0\}.
+\end{equation*}
+Thus since $(X_t)_{t=0}^\infty$ and $(Y_t)_{t=0}^\infty$ are independent of each other,
+\begin{align*}
+\Prob_{x, \pi}\{\tau_\mathrm{couple} > r_0\} &\leq 1 - \Prob_{x, \pi}\{X_{r_0} = x_0, Y_{r_0} = x_0\} \\
+&= 1 - \Prob_{x, \pi}\{X_{r_0} = x_0\} \Prob\{Y_{r_0} = x_0\} \\
+&\leq 1 - \alpha^2.
+\end{align*}
+Now let $k > 1$ and assume that
+\begin{equation} \label{eq:1}
+\Prob_{x, \pi}\{\tau_\mathrm{couple} > kr_0\} \leq (1 - \alpha^2)^k.
+\end{equation}
+Then
+\begin{align*}
+\Prob_{x, \pi}\{\tau_\mathrm{couple} > (k+1)r_0\} &= \Prob_{x, \pi}\{\tau_\mathrm{couple} > (k+1)r_0, \tau_\mathrm{couple} > kr_0\} \\
+&= \Prob_{x, \pi}\{\tau_\mathrm{couple} > (k+1)r_0 | \tau_\mathrm{couple} > kr_0\} \Prob_{x, \pi}\{\tau_\mathrm{couple} > kr_0\} \\
+&= \Prob_{x, \pi}\{\tau_\mathrm{couple} > r_0\} \Prob_{x, \pi}\{\tau_\mathrm{couple} > kr_0\} \\
+&= (1 - \alpha^2)(1 - \alpha^2)^k \\
+&= (1 - \alpha^2)^{k+1}.
+\end{align*}
+Thus (\ref{eq:1}) holds for every $k \geq 1$ by induction. We therefore have the following:
+\begin{align*}
+\Prob_{x, \pi}\{\tau_\mathrm{couple} = \infty\} &= \Prob_{x, \pi}\left(\bigcap_{s=1}^\infty \{\tau_\mathrm{couple} > s\}\right) = \Prob_{x, \pi}\left(\bigcap_{k=1}^\infty \{\tau_\mathrm{couple} > kr_0\}\right) \\
+&= \Prob_{x, \pi}\{\tau_\mathrm{couple} > mr_0\} \leq (1 - \alpha^2)^m
+\end{align*}
+for any $m \geq 1$. Thus,
+\begin{equation*}
+\Prob_{x, \pi}\{\tau_\mathrm{couple} < \infty\} \geq 1 - (1 - \alpha^2)^m \to 1 \quad \text{as $m \to \infty$},
+\end{equation*}
+so that $\Prob_{x, \pi}\{\tau_\mathrm{couple} < \infty\} = 1$. So the chains $(X_t)_{t=0}^\infty$ and $(Y_t)_{t=0}^\infty$ coalesce almost surely.
+
+\end{enumerate}
+
+\subsection*{Exercise 5.2}
+\nullstepcounter{subsection}
+
+Let $x, y \in \mathcal{X}$. I claim that for every $k \geq 1$,
+\begin{equation}
+\Prob_{x, y}\{\tau_\mathrm{couple} > kt_0\} \leq (1 - \alpha)^k.
+\end{equation}
+I will proceed by induction on $k$. When $k = 1$, the inequality (\ref{eq:1}) reduces to
+\begin{equation*}
+\Prob_{x, y}\{\tau_\mathrm{couple} > t_0\} \leq 1 - \alpha,
+\end{equation*}
+which holds by assumption. Now let $k > 1$ be such that (\ref{eq:1}) holds. Then
+\begin{align*}
+\Prob_{x, y}\{\tau_\mathrm{couple} > (k+1)t_0\} &= \Prob_{x, y}\{\tau_\mathrm{couple} > (k+1)t_0, \tau_\mathrm{couple} > kt_0\} \\
+&= \Prob_{x, y}\{\tau_\mathrm{couple} > (k+1)t_0 | \tau_\mathrm{couple} > kt_0\} \Prob_{x, y}\{\tau_\mathrm{couple} > kt_0\} \\
+&= \Prob_{x, y}\{\tau_\mathrm{couple} > t_0\} \Prob_{x, y}\{\tau_\mathrm{couple} > kt_0\} \\
+&\leq (1 - \alpha)(1 - \alpha)^k \\
+&= (1 - \alpha)^{k+1}.
+\end{align*}
+Therefore (\ref{eq:1}) holds for every $k \geq 1$ by induction. Finally, we have
+\begin{equation*}
+\E_{x, y}(\tau_\mathrm{couple}) = \sum_{t=0}^\infty \Prob_{x, y}\{\tau_\mathrm{couple} > t\} \leq \sum_{k=0}^\infty t_0 \Prob_{x, y}\{\tau_\mathrm{couple} > kt_0\} \leq \sum_{k=0}^\infty t_0 (1 - \alpha)^k = \frac{t_0}{\alpha}.
+\end{equation*}
+
+\subsection*{Exercise 5.3}
+
+We have the following:
+\begin{equation*}
+\E\left(\sum_{i=1}^\tau X_i\right) = \E\left[\E\left(\sum_{i=1}^\tau X_i \Bigg| \tau\right)\right] = \E(\mu \tau) = \mu \E(\tau).
+\end{equation*}
+
+\subsection*{Exercise 5.4}
+\nullstepcounter{subsection}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+I claim that for every $k \geq 1$,
+\begin{equation} \label{eq:1}
+\Prob_{x, y}\{\tau_1 > kdn^2\} \leq \left(\frac{1}{4}\right)^k.
+\end{equation}
+We already know from the proof of Thm. 5.6 that
+\begin{equation*}
+\E_{x, y}(\tau_1) \leq \frac{dn^2}{4},
+\end{equation*}
+and thus by Markov's Inequality,
+\begin{equation*}
+\Prob_{x, y}\{\tau_1 > dn^2\} \leq \frac{\E_{x, y}(\tau_1)}{dn^2} \leq \frac{dn^2/4}{dn^2} = \frac{1}{4}.
+\end{equation*}
+So the base case ($k=1$) is satisfied. Now let $k > 1$ satisfy (\ref{eq:1}). We then have the following:
+\begin{align*}
+\Prob_{x, y}\{\tau_1 > (k+1)dn^2\} &= \Prob_{x, y}\{\tau_1 > (k+1)dn^2, \tau_1 > kdn^2\} \\
+&= \Prob_{x, y}\{\tau_1 > (k+1)dn^2 | \tau_1 > kdn^2\} \Prob_{x, y}\{\tau_1 > kdn^2\} \\
+&= \Prob_{x, y}\{\tau_1 > dn^2\} \Prob_{x, y}\{\tau_1 > kdn^2\} \\
+&\leq \frac{1}{4}\left(\frac{1}{4}\right)^k = \left(\frac{1}{4}\right)^{k+1}.
+\end{align*}
+Thus (\ref{eq:1}) holds for every $k \geq 1$ by induction. Now let $t \geq kdn^2$ for some $k \geq 1$. Then
+\begin{equation*}
+\Prob_{x, y}\{\tau_1 > t\} \leq \Prob_{x, y}\{\tau_1 > kdn^2\} \leq \left(\frac{1}{4}\right)^k.
+\end{equation*}
+
+\item
+The same argument as in part (a) shows that if $t \geq kdn^2$, then
+\begin{equation*}
+\Prob_{x, y}\{\tau_i > kdn^2\} \leq \left(\frac{1}{4}\right)^k \quad \text{for every $1 \leq i \leq d$}.
+\end{equation*}
+Note that
+\begin{equation*}
+\tau_\mathrm{couple} = \max_{1 \leq i \leq d} \tau_i.
+\end{equation*}
+Thus if $t \geq kdn^2$, then
+\begin{equation*}
+\Prob_{x, y}\{\tau_\mathrm{couple} > t\} = \Prob_{x, y}\left(\bigcup_{i=1}^d \{\tau_i > t\}\right) \leq \sum_{i=1}^d \Prob_{x, y}\{\tau_i > t\} \leq d\left(\frac{1}{4}\right)^k.
+\end{equation*}
+Let $0 < \epsilon < 1/2$. Then putting $t = \lceil \log_4(d/\epsilon) \rceil dn^2$ (i.e., $k = \lceil \log_4(d/\epsilon) \rceil$) in the above yields
+\begin{equation*}
+\Prob_{x, y}\{\tau_\mathrm{couple} > \lceil \log_4(d/\epsilon) \rceil dn^2\} \leq d\left(\frac{1}{4}\right)^{\lceil \log_4(d/\epsilon) \rceil} \leq d\left(\frac{1}{4}\right)^{\log_4(d/\epsilon)} = \epsilon.
+\end{equation*}
+Thus by Cor. 5.5,
+\begin{equation*}
+d(\lceil \log_4(d/\epsilon) \rceil dn^2) \leq \max_{x, y \in \mathbb{Z}_n^d} \Prob_{x, y}\{\tau_\mathrm{couple} > \lceil \log_4(d/\epsilon) \rceil dn^2\} \leq \epsilon,
+\end{equation*}
+and hence
+\begin{equation*}
+t_\mathrm{mix}(\epsilon) \leq \lceil \log_4(d/\epsilon) \rceil dn^2.
+\end{equation*}
+
+\end{enumerate}
+
+\section*{Harmonic functions}
+
+\subsection*{Exercise 1}
+
+First, let $x \in A \cup B$. Then
+\begin{equation*}
+\check{P}(x, y) = \begin{cases}
+1 & \quad \text{if $y = x$} \\
+0 & \quad \text{if $y \neq x$}
+\end{cases} \quad \text{for every $y \in \mathcal{X}$}.
+\end{equation*}
+Thus $\check{P}(x, y) \geq 0$ for every $y \in \mathcal{X}$, and
+\begin{equation*}
+\sum_{y \in \mathcal{X}} \check{P}(x, y) = \check{P}(x, x) = 1.
+\end{equation*}
+Now let $x \in \mathcal{X} \setminus (A \cup B)$. Then
+\begin{equation*}
+\check{P}(x, y) = \frac{P(x, y)h(y)}{h(x)} \quad \text{for every $y \in \mathcal{X}$}.
+\end{equation*}
+Note that $h(y) \geq 0$ for every $y \in \mathcal{X}$ by definition, and that $h(x) > 0$ since $h$ is positive on $\mathcal{X} \setminus (A \cup B)$. Thus $\check{P}(x, y) \geq 0$ for every $y \in \mathcal{X}$, and since $h$ is harmonic,
+\begin{equation*}
+\sum_{y \in \mathcal{X}} \check{P}(x, y) = \sum_{y \in \mathcal{X}} \frac{P(x, y)h(y)}{h(x)} = \frac{h(x)}{h(x)} = 1.
+\end{equation*}
+Thus we see that $\check{P}$ is a transition matrix.
+
+\subsection*{Exercise 2}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+Let $x \in \mathcal{X} \setminus (A \cup B)$, so that $x \not \in A$ and $x \not \in B$. By assumption there exists $y \in A$ and a path $x = x_0, x_1, \ldots, x_k = y$ of states in $\mathcal{X}$ satisfying $P(x_i, x_{i+1}) > 0$ for every $0 \leq i < k$. Note that $x_i \not \in B$ for every $0 \leq i < k$, for if $x_i \in B$ we would have $P(x_i, x_{i+1}) = 0$, since the elements of $B$ are absorbing states. Hence there is a positive probability of reaching $y$ from $x$ before hitting $B$; that is, $\Prob_x\{\tau_y < \tau_B\} > 0$. But then, since $y \in A$,
+\begin{equation*}
+0 < \Prob_x\{\tau_y < \tau_B\} \leq \Prob_x\{\tau_A < \tau_B\} = h(x).
+\end{equation*}
+Thus $h$ is positive on $\mathcal{X} \setminus (A \cup B)$.
+
+\item
+Let $x \in \mathcal{X} \setminus (A \cup B)$. Then we have:
+\begin{align*}
+\sum_{y \in \mathcal{X}} P(x, y) h(y) &= \sum_{y \in \mathcal{X}} \Prob_x\{X_1 = y\} \Prob_y\{\tau_A < \tau_B\} \\
+&= \sum_{y \in \mathcal{X}} \Prob_x\{X_1 = y\} \Prob_x\{\tau_A < \tau_B | X_1 = y\} \\
+&= \sum_{y \in \mathcal{X}} \Prob_x\{X_1 = y, \tau_A < \tau_B\} \\
+&= \Prob_x\{\tau_A < \tau_B\} = h(x).
+\end{align*}
+Note that since $x \in \mathcal{X} \setminus (A \cup B)$, $x \not \in A$ and $x \not \in B$, and hence the occurrence of the event $\{\tau_A < \tau_B\}$ is unaffected if, for any $y \in \mathcal{X}$, we are given that $X_0 = x$ and $X_1 = y$ rather than $X_0 = y$. This justifies the equality
+\begin{equation*}
+\Prob_y\{\tau_A < \tau_B\} = \Prob_x\{\tau_A < \tau_B | X_1 = y\} \quad \text{for any $y \in \mathcal{X}$}.
+\end{equation*}
+Hence $h$ is harmonic on $\mathcal{X} \setminus (A \cup B)$.
+
+\end{enumerate}
+
+\subsection*{Exercise 3}
+
+Let $x \in \mathcal{X} \setminus (A \cup B)$. Then for any $y \in \mathcal{X}$,
+\begin{align*}
+\Prob_x\{X_1 = y | \tau_A < \tau_B\} &= \frac{\Prob_x\{X_1 = y, \tau_A < \tau_B\}}{\Prob_x\{\tau_A < \tau_B\}} = \frac{\Prob_x\{\tau_A < \tau_B | X_1 = y\} \Prob_x\{X_1 = y\}}{h(x)} \\
+&= \frac{\Prob_y\{\tau_A < \tau_B\} P(x, y)}{h(x)} = \frac{h(y) P(x, y)}{h(x)} = \check{P}(x, y).
+\end{align*}
+
+\subsection*{Exercise 4}
+
+For any $x \in \mathcal{X} \setminus (A \cup B)$ and $y \in \mathcal{X}$, $\check{P}(x, y)$ is the probability of the chain transitioning from $x$ to $y$ in a single step, given that the chain hits $A$ before it hits $B$.
+
+\subsection*{Exercise 5}
+\nullstepcounter{subsection}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+If $x \in A$, then since $A \cap B = \emptyset$, $x \not \in B$. Thus,
+\begin{equation*}
+h(x) = \Prob_x\{\tau_A < \tau_B\} = \Prob\{\tau_A < \tau_B | X_0 = x\} = \Prob\{\tau_B > 0 | X_0 = x\} = 1.
+\end{equation*}
+Similarly, if $x \in B$, then $x \not \in A$, and so
+\begin{equation*}
+h(x) = \Prob_x\{\tau_A < \tau_B\} = \Prob\{\tau_A < \tau_B | X_0 = x\} = \Prob\{\tau_A < 0 | X_0 = x\} = 0.
+\end{equation*}
+
+\item
+This was proven in Exercise 2(b). Specifically, the fact that $h$ is harmonic on $\mathcal{X} \setminus (A \cup B)$ means that $h$ is harmonic at every $x \in \mathcal{X} \setminus (A \cup B)$, by definition.
+
+\end{enumerate}
+
+To see that $h$ is the unique function satisfying (a) and (b), let $g : \mathcal{X} \to [0, \infty)$ be another function satisfying (a) and (b). That is,
+\begin{enumerate}[label=(\alph*)]
+\item
+$g(x) = 1$ for every $x \in A$, and $g(x) = 0$ for every $x \in B$;
+
+\item
+$g$ is harmonic at every $x \in \mathcal{X} \setminus (A \cup B)$.
+\end{enumerate}
+Let $x \in \mathcal{X}$ be a state that maximizes $|h(x) - g(x)|$. If $x \in A \cup B$, then $h(x) = g(x)$, so that $|h(x) - g(x)| = 0$, and hence $h(y) = g(y)$ for every $y \in \mathcal{X}$. So assume $x \in \mathcal{X} \setminus (A \cup B)$. Then since $h$ and $g$ are both harmonic on $\mathcal{X} \setminus (A \cup B)$, we have for any $t > 0$,
+\begin{align*}
+h(x) - g(x) &= \sum_{y \in \mathcal{X}} P^t(x, y)h(y) - \sum_{y \in \mathcal{X}} P^t(x, y)g(y) \\
+&= \sum_{y \in \mathcal{X}} P^t(x, y)[h(y) - g(y)] = \sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y)[h(y) - g(y)].
+\end{align*}
+Hence,
+\begin{align*}
+|h(x) - g(x)| &= \left|\sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y)[h(y) - g(y)]\right| \leq \sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y) |h(y) - g(y)| \\
+&\leq \sum_{y \in \mathcal{X}} P^t(x, y) |h(y) - g(y)| \leq \sum_{y \in \mathcal{X}} P^t(x, y) |h(x) - g(x)| \\
+&= |h(x) - g(x)|.
+\end{align*}
+Thus,
+\begin{equation*}
+\sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y) |h(y) - g(y)| = |h(x) - g(x)|,
+\end{equation*}
+so that
+\begin{equation} \label{eq:1}
+\sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y) [|h(x) - g(x)| - |h(y) - g(y)|] = 0.
+\end{equation}
+Therefore if $y \in \mathcal{X} \setminus (A \cup B)$ is such that $P^t(x, y) > 0$ for some $t > 0$, since $|h(x) - g(x)| - |h(y) - g(y)| \geq 0$, (\ref{eq:1}) implies that $|h(x) - g(x)| = |h(y) - g(y)|$. It follows that (\ref{eq:1}) can be written, for any $t > 0$,
+\begin{equation*}
+\sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y) |h(x) - g(x)| = |h(x) - g(x)|.
+\end{equation*}
+Thus if $|h(x) - g(x)| > 0$, we have for any $t > 0$,
+\begin{equation} \label{eq:2}
+\sum_{y \in \mathcal{X} \setminus (A \cup B)} P^t(x, y) = 1.
+\end{equation}
+By assumption, there exists $y \in A$ such that $P^t(x, y) > 0$ for some $t > 0$. However, (\ref{eq:2}) implies that $P^t(x, y) = 0$ for every $y \in A$ and $t > 0$, a contradiction. So we must have $|h(x) - g(x)| = 0$, so that $h(y) = g(y)$ for every $y \in \mathcal{X}$. Thus $h$ is the unique function satisfying conditions (a) and (b).
+
+\subsection*{Exercise 6}
+
+In this case the conditions (a) and (b) given in Exercise 5 reduce to
+\begin{enumerate}[label=(\alph*)]
+\item
+$h(n) = 1$ and $h(0) = 0$;
+
+\item
+$h$ is harmonic on $\{1, 2, \ldots, n-1\}$.
+
+\end{enumerate}
+Condition (b) is equivalent to the following: for any $x \in \{1, 2, \ldots, n-1\}$,
+\begin{align*}
+h(x) &= \sum_{y \in \mathcal{X}} P(x, y) h(y) \\
+&= P(x, x-1) h(x-1) + P(x, x+1) h(x+1) \\
+&= \frac{1}{2} h(x-1) + \frac{1}{2} h(x+1).
+\end{align*}
+But from the proof of Proposition 2.1 we know that the solution of this recurrence relation, with the boundary conditions specified by condition (a), is simply
+\begin{equation*}
+h(x) = \frac{x}{n} \quad \text{for every $x \in \mathcal{X}$}.
+\end{equation*}
+
+\end{document}

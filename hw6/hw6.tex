@@ -1,0 +1,250 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Prob}{P}
+
+\title{Homework 6}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problems from the book}
+
+\subsection*{Exercise 4.1}
+
+By definition,
+\begin{equation*}
+d(t) = \max_{x \in \mathcal{X}} \Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV}.
+\end{equation*}
+Say the maximum is attained at $x' \in \mathcal{X}$, so that
+\begin{equation*}
+d(t) = \Vert P^t(x', \cdot) - \pi \Vert_\mathrm{TV}.
+\end{equation*}
+Then since $P^t(x', \cdot)$ is a probability distribution on $\mathcal{X}$, we see that
+\begin{equation*}
+d(t) \leq \sup_{\mu} \Vert \mu P^t - \pi \Vert_\mathrm{TV}.
+\end{equation*}
+Now for the opposite inequality. For any distribution $\mu$ on $\mathcal{X}$, we have the following:
+\begin{align*}
+\Vert \mu P^t - \pi \Vert_\mathrm{TV} &= \frac{1}{2} \sum_{z \in \mathcal{X}} \left| (\mu P)^t)(z) - \pi(z) \right| \\
+&= \frac{1}{2} \sum_{z \in \mathcal{X}} \left| \sum_{w \in \mathcal{X}} \mu(w) P^t(w, z) - \sum_{w \in \mathcal{X}} \mu(w) \pi(z) \right| \\
+&\leq \frac{1}{2} \sum_{z \in \mathcal{X}} \sum_{w \in \mathcal{X}} \left| \mu(w) P^t(w, z) - \mu(w) \pi(z) \right| \\
+&= \frac{1}{2} \sum_{z \in \mathcal{X}} \sum_{w \in \mathcal{X}} \mu(w) \left| P^t(w, z) - \pi(z) \right| \\
+&= \sum_{w \in \mathcal{X}} \mu(w) \left[ \frac{1}{2} \sum_{z \in \mathcal{X}} \left| P^t(w, z) - \pi(z) \right| \right] \\
+&= \sum_{w \in \mathcal{X}} \mu(w) \Vert P^t(w, \cdot) - \pi \Vert_\mathrm{TV} \\
+&\leq \sum_{w \in \mathcal{X}} \mu(w) \max_{x \in \mathcal{X}} \Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV} = \max_{x \in \mathcal{X}} \Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV} = d(t).
+\end{align*}
+It then follows that
+\begin{equation*}
+\sup_{\mu} \Vert \mu P^t - \pi \Vert_\mathrm{TV} \leq d(t),
+\end{equation*}
+and therefore
+\begin{equation*}
+d(t) = \sup_{\mu} \Vert \mu P^t - \pi \Vert_\mathrm{TV}.
+\end{equation*}
+
+Now for the second part of the problem. By definition,
+\begin{equation*}
+\bar{d}(t) = \max_{x, y \in \mathcal{X}} \Vert P^t(x, \cdot) - P^t(y, \cdot) \Vert_\mathrm{TV}.
+\end{equation*}
+Say the maximum is attained at $x', y' \in \mathcal{X}$, so that
+\begin{equation*}
+\bar{d}(t) = \Vert P^t(x', \cdot) - P^t(y', \cdot) \Vert_\mathrm{TV}.
+\end{equation*}
+Then since $P^t(x', \cdot)$ and $P^t(y', \cdot)$ are probability distributions on $\mathcal{X}$, we see that
+\begin{equation*}
+\bar{d}(t) \leq \sup_{\mu, \nu} \Vert \mu P^t - \nu P^t \Vert_\mathrm{TV}.
+\end{equation*}
+To establish the opposite inequality, first note that for any probability distributions $\mu$ and $\nu$ on $\mathcal{X}$, we have the following:
+\begin{align*}
+\Vert \mu P^t - \nu P^t \Vert_\mathrm{TV} &= \frac{1}{2} \sum_{z \in \mathcal{X}} \left| (\mu P^t)(z) - (\nu P^t)(z) \right| \\
+&= \frac{1}{2} \sum_{z \in \mathcal{X}} \left| \sum_{w \in \mathcal{X}} \nu(w) (\mu P^t)(z) - \sum_{w \in \mathcal{X}} \nu(w) P^t(w, z) \right| \\
+&\leq \frac{1}{2} \sum_{z \in \mathcal{X}} \sum_{w \in \mathcal{X}} \left| \nu(w) (\mu P^t)(z) - \nu(w) P^t(w, z) \right| \\
+&= \frac{1}{2} \sum_{z \in \mathcal{X}} \sum_{w \in \mathcal{X}} \nu(w) \left| (\mu P^t)(z) - P^t(w, z) \right| \\
+&= \sum_{w \in \mathcal{X}} \nu(w) \left[\frac{1}{2} \sum_{z \in \mathcal{X}} \left| (\mu P^t)(z) - P^t(w, z) \right|\right] \\
+&= \sum_{w \in \mathcal{X}} \nu(w) \Vert \mu P^t - P^t(w, \cdot) \Vert_\mathrm{TV} \\
+&\leq \sum_{w \in \mathcal{X}} \nu(w) \max_{y \in \mathcal{X}} \Vert \mu P^t - P^t(y, \cdot) \Vert_\mathrm{TV} = \max_{y \in \mathcal{X}} \Vert \mu P^t - P^t(y, \cdot) \Vert_\mathrm{TV}.
+\end{align*}
+In particular, if for any $x \in \mathcal{X}$ we take $\mu = \delta_x$ in the above, then $\mu P^t = \delta_x P^t = P^t(x, \cdot)$, and we get
+\begin{equation*}
+\Vert P^t(x, \cdot) - \nu P^t \Vert_\mathrm{TV} \leq \max_{y \in \mathcal{X}} \Vert P^t(x, \cdot) - P^t(y, \cdot) \Vert_\mathrm{TV}.
+\end{equation*}
+Therefore,
+\begin{equation*}
+\Vert \mu P^t - \nu P^t \Vert_\mathrm{TV} \leq \max_{x \in \mathcal{X}} \Vert P^t(x, \cdot) - \nu P^t \Vert_\mathrm{TV} \leq \max_{x, y \in \mathcal{X}} \Vert P^t(x, \cdot) - P^t(y, \cdot) \Vert_\mathrm{TV} = \bar{d}(t).
+\end{equation*}
+Hence,
+\begin{equation*}
+\sup_{\mu, \nu} \Vert \mu P^t - \nu P^t \Vert_\mathrm{TV} \leq \bar{d}(t),
+\end{equation*}
+so that
+\begin{equation*}
+\bar{d}(t) = \sup_{\mu, \nu} \Vert \mu P^t - \nu P^t \Vert_\mathrm{TV}.
+\end{equation*}
+
+\subsection*{Exercise 4.2}
+
+Let $\mu$ and $\nu$ be probability distributions on $\mathcal{X}$. Then we have the following:
+\begin{align*}
+\Vert \mu P - \nu P \Vert_\mathrm{TV} &= \frac{1}{2} \sum_{x \in \mathcal{X}} \left| (\mu P)(x) - (\nu P)(x) \right| \\
+&= \frac{1}{2} \sum_{x \in \mathcal{X}} \left| \sum_{y \in \mathcal{X}} \mu(y) P(y, x) - \sum_{y \in \mathcal{X}} \nu(y) P(y, x) \right| \\
+&= \frac{1}{2} \sum_{x \in \mathcal{X}} \left| \sum_{y \in \mathcal{X}} (\mu(y) - \nu(y)) P(y, x) \right| \\
+&\leq \frac{1}{2} \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{X}} \left| (\mu(y) - \nu(y)) P(y, x) \right| \\
+&= \frac{1}{2} \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{X}} \left|\mu(y) - \nu(y) \right| P(y, x) \\
+&= \frac{1}{2} \sum_{y \in \mathcal{X}} \left|\mu(y) - \nu(y) \right| \sum_{x \in \mathcal{X}} P(y, x) \\
+&= \frac{1}{2} \sum_{y \in \mathcal{X}} \left|\mu(y) - \nu(y) \right| = \Vert \mu - \nu \Vert_\mathrm{TV}.
+\end{align*}
+In particular, if $\pi$ is a stationary distribution for the chain, then
+\begin{equation*}
+\Vert \mu P^{t+1} - \pi \Vert_\mathrm{TV} = \Vert (\mu P^t)P - \pi P \Vert_\mathrm{TV} \leq \Vert \mu P^t - \pi \Vert_\mathrm{TV}.
+\end{equation*}
+Therefore, for any $t \geq 0$,
+\begin{equation*}
+d(t+1) = \sup_\mu \Vert \mu P^{t+1} - \pi \Vert_\mathrm{TV} \leq \sup_\mu \Vert \mu P^t - \pi \Vert_\mathrm{TV} = d(t),
+\end{equation*}
+and
+\begin{align*}
+\bar{d}(t+1) &= \sup_{\mu, \nu} \Vert \mu P^{t+1} - \nu P^{t+1} \Vert_\mathrm{TV} = \sup_{\mu, \nu} \Vert (\mu P^t)P - (\nu P^t)P \Vert_\mathrm{TV} \\
+&\leq \sup_{\mu, \nu} \Vert (\mu P^t) - (\nu P^t) \Vert_\mathrm{TV} = \bar{d}(t).
+\end{align*}
+Thus each of $d$ and $\bar{d}$ are non-increasing in $t$.
+
+\subsection*{Exercise 4.3}
+
+Let $s, t \geq 0$. Let $x \in \mathcal{X}$, and let $\pi$ be a stationary distribution for the chain. Then by the proof of Proposition 4.7, there exists an optimal coupling $(X, Y)$ for the distributions $P^t(x, \cdot)$ and $\pi$, that is, $\Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV} = \Prob\{X \neq Y\}$, and $X \sim P^t(x, \cdot)$ and $Y \sim \pi$. Thus, for any $w \in \mathcal{X}$,
+\begin{equation*}
+P^{s+t}(x, w) = \sum_{z \in \mathcal{X}} P^t(x, z) P^s(z, w) = \sum_{z \in \mathcal{X}} \Prob\{X = z\} P^s(z, w) = \E[P^s(X, w)],
+\end{equation*}
+and, since $\pi$ is stationary,
+\begin{equation*}
+\pi(w) = (\pi P^s)(w) = \sum_{z \in \mathcal{X}} \pi(z) P^s(z, w) = \sum_{z \in \mathcal{X}} \Prob\{Y = z\} P^s(z, w) = \E[P^s(Y, w)].
+\end{equation*}
+Thus, for any $A \subseteq \mathcal{X}$,
+\begin{align*}
+P^{s+t}(x, A) - \pi(A) &= \E[P^s(X, A) - P^s(Y, A)] \\
+&= \E[I\{X \neq Y\}(P^s(X, A) - P^s(Y, A))] \\
+&\leq \E[I\{X \neq Y\} \bar{d}(s)] \\
+&= \bar{d}(s) \Prob\{X \neq Y\} \\
+&= \bar{d}(s) \Vert P^t(x, \cdot) - \pi \Vert_\mathrm{TV} \\
+&\leq \bar{d}(s) d(t).
+\end{align*}
+Therefore, in particular we have
+\begin{equation*}
+\Vert P^{s+t}(x, \cdot) - \pi \Vert_\mathrm{TV} = \sum_{\substack{w \in \mathcal{X} \\ P^{s+t}(x, w) \geq \pi(w)}} [P^{s+t}(x, w) - \pi(w)] \leq \bar{d}(s) d(t),
+\end{equation*}
+from which it follows that
+\begin{equation*}
+d(s+t) = \max_{x \in \mathcal{X}} \Vert P^{s+t}(x, \cdot) - \pi \Vert_\mathrm{TV} \leq \bar{d}(s) d(t).
+\end{equation*}
+
+For the final part of the problem, I will proceed by induction on $k$. When $k = 2$, the statement reduces to
+\begin{equation*}
+t_\mathrm{mix}(2^{-2}) = t_\mathrm{mix}(1/4) = t_\mathrm{mix} = (2 - 1)t_\mathrm{mix},
+\end{equation*}
+and so $t_\mathrm{mix}(2^{-2}) \leq (2 - 1)t_\mathrm{mix}$ holds trivially. Now let $k > 2$, and assume that $t_\mathrm{mix}(2^{-k}) \leq (k - 1)t_\mathrm{mix}$. Then since $d$ is non-increasing, $d((k - 1)t_\mathrm{mix}) \leq d(t_\mathrm{mix}(2^{-k}))$. Thus, using the first result of this problem, we get
+\begin{align*}
+d(kt_\mathrm{mix}) &= d((k - 1)t_\mathrm{mix} + t_\mathrm{mix}) \\
+&\leq \bar{d}(t_\mathrm{mix}) d((k - 1)t_\mathrm{mix}) \\
+&\leq \bar{d}(t_\mathrm{mix}) d(t_\mathrm{mix}(2^{-k})) \\
+&\leq 2d(t_\mathrm{mix}) d(t_\mathrm{mix}(2^{-k})) \\
+&\leq \frac{1}{2} d(t_\mathrm{mix}(2^{-k})),
+\end{align*}
+where the inequality $\bar{d}(t_\mathrm{mix}) \leq 2d(t_\mathrm{mix})$ is due to Lemma 4.10, and in the last step I used the fact that $t_\mathrm{mix} = 1/4$ by definition. Finally, note that since $d(t_\mathrm{mix}(2^{-k})) \leq 2^{-k}$ by definition,
+\begin{equation*}
+\frac{1}{2} d(t_\mathrm{mix}(2^{-k}) \leq 2^{-(k+1)},
+\end{equation*}
+so that
+\begin{equation*}
+\frac{1}{2} d(t_\mathrm{mix}(2^{-k}) \leq d(t_\mathrm{mix}(2^{-(k+1)}).
+\end{equation*}
+Therefore $d(kt_\mathrm{mix}) \leq d(t_\mathrm{mix}(2^{-(k+1)}))$, and hence since $d$ is non-increasing, $t_\mathrm{mix}(2^{-(k+1)}) \leq kt_\mathrm{mix}$. Thus the result holds by induction.
+
+\section*{Coupling}
+
+\subsection*{Exercise 1}
+
+Let $\mu \sim \mathrm{Poisson}(b)$ and $\nu \sim \mathrm{Poisson}(a)$ denote the two Poisson distributions in question. To construct a coupling of $\mu$ and $\nu$, first let $X \sim \mathrm{Poisson}(a)$ and $Y \sim \mathrm{Poisson}(b-a)$ be independent. Then since $X$ and $Y$ are independent, $X + Y \sim \mathrm{Poisson}(b)$, and thus $(X + Y, X)$ is a coupling of $\mu$ and $\nu$, where $X + Y \sim \mu$ and $Y \sim \nu$. We have
+\begin{equation*}
+\Prob\{X \neq X + Y\} = 1 - \Prob\{X = X + Y\} = 1 - \Prob\{Y = 0\} = 1 - \exp[-(b-a)].
+\end{equation*}
+Thus by Proposition 4.7, it follows that
+\begin{equation*}
+\Vert \mu - \nu \Vert_\mathrm{TV} \leq \Prob\{X \neq X + Y\} = 1 - \exp[-(b-a)] \leq b - a,
+\end{equation*}
+where the final inequality follows from the fact that $\exp(x) \geq 1 + x$ for any $x \in \mathbb{R}$.
+
+\subsection*{Exercise 2}
+
+Let $\mu \sim \mathrm{binomial}(n, 1 - e^{-\lambda / n})$ and $\nu \sim \mathrm{Poisson}(\lambda)$ denote the two distributions in question. To construct a coupling of $\mu$ and $\nu$, define random variables $P_1, \ldots, P_n \overset{\text{IID}}\sim \mathrm{Poisson}(\lambda / n)$, and $B_i = \min\{1, P_i\}$ for every $1 \leq i \leq n$. Then since the $P_i$'s are independent, we have
+\begin{equation*}
+Y = \sum_{i=1}^n P_i \sim \mathrm{Poisson}(\lambda).
+\end{equation*}
+In addition, for any $1 \leq i \leq n$,
+\begin{equation*}
+\Prob\{B_i = 0\} = \Prob\{P_i = 0\} = e^{-\lambda / n}.
+\end{equation*}
+Thus, since the $P_i$'s are independent, it follows that the $B_i's$ are independent, so that $B_1, \ldots, B_n \overset{\text{IID}}\sim \mathrm{Bernoulli}(1 - e^{-\lambda / n})$. Hence,
+\begin{equation*}
+X = \sum_{i=1}^n B_i \sim \mathrm{binomial}(n, 1 - e^{-\lambda / n}).
+\end{equation*}
+Thus $(X, Y)$ is a coupling of $\mu$ and $\nu$, where $X \sim \mu$ and $Y \sim \nu$. Thus by Proposition 4.7 it follows that
+\begin{equation*}
+\Vert \mu - \nu \Vert_\mathrm{TV} \leq \Prob\{X \neq Y\}.
+\end{equation*}
+We have the following:
+\begin{align*}
+\Prob\{X = Y\} &= \sum_{k=0}^\infty \Prob\{X = Y | X = k\} \Prob\{X = k\} \\
+&= \sum_{k=0}^\infty \Prob\{Y = k\} \Prob\{X = k\} \\
+&= \sum_{k=0}^n \frac{\lambda^k e^{-\lambda}}{k!} \binom{n}{k}(1 - e^{-\lambda / n})^k (e^{-\lambda / n})^{n-k}.
+\end{align*}
+Note that if we define
+\begin{equation*}
+g(k) = \frac{\lambda^k e^{-\lambda}}{k!} \quad \text{for every $0 \leq k \leq n$},
+\end{equation*}
+then we can write
+\begin{equation*}
+\Prob\{X = Y\} = \sum_{k=0}^n g(k) \binom{n}{k}(1 - e^{-\lambda / n})^k (e^{-\lambda / n})^{n-k} = \E[g(X)].
+\end{equation*}
+Moreover, since $g(X)$ is a non-negative random variable,
+\begin{equation*}
+\E[g(X)] = \int_0^\infty \Prob\{g(X) \geq x\} \, dx = \sum_{k=0}^n \Prob\{g(X) \geq g(k)\}.
+\end{equation*}
+(I derived a bound from this, but then realized at the last minute that it was erroneous).
+
+\section*{Coupling of two binomials}
+
+See the file \texttt{binomial\_coupling.R} for the code, and the file \texttt{binomial\_coupling\_plots.pdf} for the output (both have been uploaded to Sakai).
+
+\end{document}

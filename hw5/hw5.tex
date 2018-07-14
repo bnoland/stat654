@@ -1,0 +1,246 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Prob}{\mathrm{P}}
+
+\title{Homework 5}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problems from the book}
+
+\subsection*{Exercise 2.1}
+
+\textit{Note}: For this exercise I opted to solve the recurrence directly rather than appeal to Exercise 1.12.
+
+For every $1 \leq k \leq n$, let $\Delta_k = f_k - f_{k-1}$. Then for every $1 \leq k \leq n-1$,
+\begin{align*}
+\Delta_k &= f_k - f_{k-1} = (f_{k+1} - f_k) + (f_k - f_{k+1}) + (f_k - f_{k-1}) \\
+&= \Delta_{k+1} + (2f_k - f_{k+1} - f_{k-1}) = \Delta_{k+1} + 2.
+\end{align*}
+In addition,
+\begin{equation*}
+\sum_{k=1}^n \Delta_k = \sum_{k=1}^n (f_k - f_{k-1}) = f_n - f_0 = 0.
+\end{equation*}
+
+First, I claim that $\Delta_k = \Delta_1 - 2(k-1)$ for every $1 \leq k \leq n$. I will proceed by induction on $k$. When $k = 1$, the statement reduces to $\Delta_1 = \Delta_1 - 2(1-1)$, which holds trivially. Now let $1 < k \leq n-1$, and assume that $\Delta_k = \Delta_1 - 2(k-1)$. Then,
+\begin{equation*}
+\Delta_{k+1} = \Delta_k - 2 = [\Delta_1 - 2(k-1)] - 2 = \Delta_1 - 2[(k+1) - 1],
+\end{equation*}
+and so the result holds by induction.
+
+Next, note that we have the relation
+\begin{align*}
+0 = \sum_{k=1}^n \Delta_k &= \sum_{k=1}^n [\Delta_1 - 2(k-1)] = n\Delta_1 - 2\sum_{k=1}^n (k-1) \\
+&= n\Delta_1 - 2\sum_{k=1}^{n-1} k = n\Delta_1 - 2\left[\frac{(n-1)n}{2}\right] = n\Delta_1 - 2(n-1)n,
+\end{align*}
+and rearrangement yields $\Delta_1 = n - 1$. Therefore, for every $1 \leq k \leq n$,
+\begin{equation*}
+\Delta_k = (n-1) + 2(k-1),
+\end{equation*}
+so that
+\begin{equation*}
+f_k = f_{k-1} + (n-1) + 2(k-1).
+\end{equation*}
+I claim that $f_k = k(n-k)$ for every $1 \leq k \leq n$. When $k=1$, this statement reduces to $f_1 = n-1$, which holds trivially since $f_1 = f_1 - f_0 = \Delta_1 = n-1$. Now let $1 < k \leq n-1$, and assume that $f_k = k(n-k)$. Then by the above,
+\begin{align*}
+f_{k+1} &= f_k + (n-1) - 2k = k(n-k) + (n-1) + 2k \\
+&= (kn-k^2-k)+(n-k-1) = (k+1)(n-k-1) = (k+1)[n-(k+1)],
+\end{align*}
+and so the result holds by induction. Moreover, $f_0 = 0(n-0)$, and so in fact $f_k = k(n-k)$ for every $0 \leq k \leq n$, and the above argument shows that this is the unique solution to the recurrence relation in question. Therefore $\E_k(\tau) = k(n-k)$ for every $0 \leq k \leq n$.
+
+\subsection*{Exercise 2.2}
+
+Let $\tau$ denote the number of rounds the gambler plays before reaching a fortune of either $0$ or $n$ dollars. I claim that $\E_k(\tau) = k(n-k)/p$ for every $0 \leq k \leq n$. To show this, it suffices to verify the conditions given in Exercise 1.12 ($A = \{0, n\}$ in this case). Specifically, if we define $f_k = k(n-k)/p$ for every $0 \leq k \leq n$, then we need to show that
+\begin{enumerate}[label=(\arabic*)]
+\item
+$f_0 = f_n = 0$
+\item
+$f_k = 1 + \sum_{m=0}^n P(k, m) f_m$ for every $1 \leq k \leq n-1$.
+\end{enumerate}
+Here $P$ denotes the transition matrix of the chain, and is defined by
+\begin{equation*}
+P(k, m) = \begin{cases}
+1-p & \quad \text{if $m=k$} \\
+p/2 & \quad \text{if $m = k \pm 1$} \\
+0 & \quad \text{otherwise}
+\end{cases}
+\end{equation*}
+for every $0 \leq m \leq n$ and $0 < k \leq n$. Thus condition (2) can be written
+\begin{equation*}
+f_k = 1 + \sum_{m=0}^n P(k, m) f_m = 1 + (1-p)f_k + \frac{p}{2} f_{k-1} + \frac{p}{2} f_{k+1}.
+\end{equation*}
+Some tedious algebra shows that $f_k = k(n-k)/p$ satisfies the above for every $0 \leq k \leq n$. Moreover, $f_0 = 0(n-0)/p = 0$ and $f_n = n(n-n)/p = 0$, so that condition (1) is satisfied as well. Therefore $\E_k(\tau) = f_k = k(n-k)/p$ for every $0 \leq k \leq n$ by Exercise 1.12.
+
+\subsection*{Exercise 2.3}
+
+(Ran out of time).
+
+\subsection*{Exercise 2.4}
+
+Using the inequality $\int_{k}^{k+1} \frac{dx}{x} \leq 1/k$, we get the following:
+\begin{equation*}
+\sum_{k=1}^n \frac{1}{k} \geq \sum_{k=1}^n \int_{k}^{k+1} \frac{dx}{x} = \int_1^{n+1} \frac{dx}{x} = \log(n+1),
+\end{equation*}
+thus establishing the lower bound. Next, using the inequality $1/(k+1) \leq \int_{k}^{k+1} \frac{dx}{x}$, we get:
+\begin{equation*}
+\sum_{k=1}^n \frac{1}{k} - 1 = \sum_{k=2}^n \frac{1}{k} = \sum_{k=1}^{n-1} \frac{1}{k+1} \leq \sum_{k=1}^{n-1} \int_{k}^{k+1} \frac{dx}{x} = \int_1^n \frac{dx}{x} = \log(n),
+\end{equation*}
+and so rearrangement yields
+\begin{equation*}
+\sum_{k=1}^n \frac{1}{k} \leq \log(n) + 1.
+\end{equation*}
+Therefore, putting the two bounds together, we get
+\begin{equation*}
+\log(n+1) \leq \sum_{k=1}^n \frac{1}{k} \leq \log(n) + 1.
+\end{equation*}
+
+\subsection*{Exercise 2.9}
+
+Define a relation $\sim$ on $\mathbb{Z}$ as follows: for any $x, y \in \mathbb{Z}$, $x \sim y$ if and only if $x - y = kn$ for some $k \in \mathbb{Z}$ (i.e., $x \equiv y\ (\mathrm{mod}\ n)$). This is easily seen to be an equivalence relation. Let $x, y, z \in \mathbb{Z}$. Then:
+\begin{itemize}
+\item
+$x \sim x$ since $x - x = 0n$.
+
+\item
+If $x \sim y$, then $x - y = kn$ for some $k \in \mathbb{Z}$, and so $y - x = (-k)n$. Hence $y \sim x$.
+
+\item
+If $x \sim y$ and $y \sim z$, then $x - y = kn$ and $y - z = mn$ for some $k, m \in \mathbb{Z}$. Thus, $x - z = (x - y) + (y - z) = kn + km = (k+m)n$, so that $x \sim z$ as well.
+
+\end{itemize}
+Therefore $\sim$ is an equivalence relation on $\mathbb{Z}$, as claimed. Let $\mathcal{X}^\sharp = \{[x] : x \in \mathbb{Z}\}$ denote the set of equivalence classes under $\sim$. Now let $x, x' \in \mathbb{Z}$ satisfy $x \sim x'$. Let $[y] \in \mathcal{X}^\sharp$. Then if $P$ denotes the transition matrix for the simple random walk on $\mathbb{Z}$, we have the following:
+\begin{align*}
+P(x, [y]) &\equiv \Prob\{X_{t+1} \in [y] | X_t = x\} = \sum_{z \in [y]} \Prob\{X_{t+1} = z | X_t = x\} \\
+&= \sum_{z \in [y]} P(x, z) = \sum_{z \in \mathbb{Z}} P(x, y+kn).
+\end{align*}
+Note, however, that for any $k \in \mathbb{Z}$,
+\begin{align*}
+P(x, y+kn) &= \begin{cases}
+1/2 & \quad \text{if $y+kn = x+1$} \\
+1/2 & \quad \text{if $y+kn = x-1$} \\
+0 & \quad \text{otherwise}
+\end{cases}
+= \begin{cases}
+1/2 & \quad \text{if $y \sim (x+1)$} \\
+1/2 & \quad \text{if $y \sim (x-1)$} \\
+0 & \quad \text{otherwise}
+\end{cases} \\
+&= \begin{cases}
+1/2 & \quad \text{if $y \sim (x'+1)$} \\
+1/2 & \quad \text{if $y \sim (x'-1)$} \\
+0 & \quad \text{otherwise}
+\end{cases} \\
+&= P(x', y+kn).
+\end{align*}
+Using this, we get the following:
+\begin{equation*}
+P(x, [y]) = \sum_{z \in \mathbb{Z}} P(x, y+kn) = \sum_{z \in \mathbb{Z}} P(x', y+kn) = P(x', [y]).
+\end{equation*}
+Hence Lemma 2.5 applies, so that if $(X_t)$ denotes the simple random walk on $\mathbb{Z}$, then $([X_t])$ is a Markov chain with state space $\mathcal{X}^\sharp$ and transition matrix $P^\sharp$ given by
+\begin{equation*}
+P^\sharp([x], [y]) \equiv P(x, [y]) = \sum_{z \in \mathbb{Z}} P(x, y+kn),
+\end{equation*}
+for any $[x], [y] \in \mathcal{X}^\sharp$. If $n > 1$, then $P(x, y+k'n) = 1/2$ for precisely one value of $k' \in \mathbb{Z}$, and so
+\begin{equation*}
+P^\sharp([x], [y]) = \sum_{z \in \mathbb{Z}} P(x, y+kn) = P(x, y+k'n)
+= \begin{cases}
+1/2 & \quad \text{if $y \sim (x+1)$} \\
+1/2 & \quad \text{if $y \sim (x-1)$} \\
+0 & \quad \text{otherwise}
+\end{cases}.
+\end{equation*}
+On the other hand, if $n = 1$ (the degenerate case), then $P(x, y+k'n) = P(x, y+k''n) = 1/2$ for precisely two values $k', k'' \in \mathbb{Z}$, and so
+\begin{equation*}
+P^\sharp([x], [y]) = \sum_{z \in \mathbb{Z}} P(x, y+kn) = P(x, y+k'n) + P(x, y+k'n) = 1.
+\end{equation*}
+Finally, note that $\mathcal{X}^\sharp$ can be identified with $\mathbb{Z}_n$, since for any $x \in \mathbb{Z}$, we can write $x = kn + y$ for some unique $y \in \mathbb{Z}_n$ by the division algorithm, and so we can write $\mathcal{X}^\sharp = \{[y] : y \in \mathbb{Z}_n\}$. Thus $P^\sharp$ is simply the transition matrix for the simple random walk on $\mathbb{Z}_n$. The simple random walk on $\mathbb{Z}_n$ is therefore a projection of the simple random walk on $\mathbb{Z}$.
+
+\subsection*{Exercise 2.10}
+
+(Ran out of time).
+
+\section*{Metropolis chain on self-avoiding paths}
+
+\subsection*{Exercise 1}
+
+See the file \texttt{pivot\_chain.ipynb}.
+
+\subsection*{Exercise 2}
+\nullstepcounter{subsection}
+
+Let $x$ and $y$ be self-avoiding paths of length $n$, and let $P$ denote the transition matrix for the chain. Let $\nu$ denote the stationary distribution on the set of self-avoiding paths of length $n$. If
+\begin{equation} \label{eq:1}
+\nu(x) P(x, y) = \nu(y) P(y, x),
+\end{equation}
+then $\nu$ is stationary for the chain. If $y$ cannote be obtained from $x$ by through of the possible transformations (rotations clockwise by $\pi/2$, $\pi$, $3\pi/2$, reflection across the $x$-axis, and reflection across the $y$-axis), then $P(x, y) = P(y, x) = 0$, and so the $\nu$ satisfies (\ref{eq:1}) trivially. On the other hand, suppose $y$ can be obtained from $x$ through one of these transformations. Then $x$ can be obtained from $y$ through the corresponding inverse transformation (for example, if $y$ is obtained from $x$ by through a rotation clockwise by $\pi/2$, then $x$ can be obtained from $y$ through a rotation by $3\pi/2$). Thus, since at each step the next state of the chain is determined by choosing a node in the path and a transformation, both uniformly at random, it follows from the above that $P(x, y) = P(y, x)$ in this case as well, and therefore $\nu$ satisfies (\ref{eq:1}). Thus $\nu$ is stationary for this chain.
+
+\subsection*{Exercise 3}
+
+Let $\mathcal{X}$ denote the set of self-avoiding paths of length $n$. Note that $\mathcal{X}$ is finite. Let $f : \mathcal{X} \to \mathbb{R}$ be a bounded function, and let $\nu$ denote the uniform distribution for the chain. Then $\nu$ is stationary for the chain by Exercise 2 of this problem. Moreover,
+\begin{equation*}
+E_\nu(f) = \sum_{x \in \mathcal{X}} \nu(x) f(x) = \sum_{x \in \mathcal{X}} \frac{1}{|\mathcal{X}|} f(x),
+\end{equation*}
+the average value of $f$ over all self-avoiding paths. The Ergodic Theorem states that
+\begin{equation*}
+\Prob_{x_0}\left\{\lim_{T \to \infty} \frac{1}{T} \sum_{t=0}^T f(X_t) = E_\nu(f)\right\} = 1,
+\end{equation*}
+where $x_0$ denotes the starting configuration of the chain. Thus if we use the code to compute an observed value of the average $\frac{1}{T} \sum_{t=0}^T f(X_t)$ for a large value of $T$, then we expect this value to be close to the true average $E_\nu(f)$.
+
+Thus we can estimate each of the quantities in question by choosing an appropriate bounded function $f : \mathcal{X} \to \mathbb{R}$ and appealing to the discussion above:
+
+\begin{enumerate}[label=(\alph*)]
+\item
+Define $f : \mathcal{X} \to \mathbb{R}$ as follows: for any $x \in \mathcal{X}$, if $x = (0, v_1, \ldots, v_n)$, then $f(x) = \Vert v_n - 0 \Vert$, where $\Vert \cdot \Vert$ is the Euclidean norm. Then for any $x \in \mathcal{X}$, $0 \leq f(x) \leq n$, so that $f$ is bounded. Thus the above discussion is applicable to $f$.
+
+\item
+Define $f : \mathcal{X} \to \mathbb{R}$ as follows: for any $x \in \mathcal{X}$, if $x = (0, v_1, \ldots, v_n)$, then
+\begin{equation*}
+f(x) = \max_{a, b \in \{0, v_1, \ldots, v_n\}} \Vert a - b \Vert,
+\end{equation*}
+where $\Vert \cdot \Vert$ is the Euclidean norm. Then for any $x \in \mathcal{X}$, $0 \leq f(x) \leq n$. so that $f$ is bounded. Thus the above discussion is applicable to $f$.
+
+\item
+Define $f : \mathcal{X} \to \mathbb{R}$ as follows: for any $x \in \mathcal{X}$, let $f(x)$ be the number of nodes that are between two parallel edges of $x$ (in the sense given in the problem statement). Then $0 \leq f(x) \leq n$, so that $f$ is bounded. Thus the above discussion is applicable to $f$.
+
+\end{enumerate}
+
+\subsection*{Exercise 4}
+
+See the file \texttt{pivot\_chain.ipynb}.
+
+\end{document}

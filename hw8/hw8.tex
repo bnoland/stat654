@@ -1,0 +1,222 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Prob}{P}
+
+\title{Homework 8}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Filtrations}
+
+\subsection*{Exercise 1}
+
+Let $\tau$ be a strong stationary time for $(X_t)$ and starting state $x$. Let $t \geq 0$ and let $y \in \mathcal{X}$. Then
+\begin{equation*}
+\Prob_x\{\tau \leq t, X_t = y\} = \sum_{s=0}^t \Prob_x\{\tau = s, X_t = y\} = \sum_{s=0}^t \sum_{z \in \mathcal{X}} \Prob_x\{\tau = s, X_s = z, X_t = y\}.
+\end{equation*}
+Note that for any $0 \leq s \leq t$, since $\tau$ is a strong stationary time, it is a stopping time, and thus there exists a function $p_s$ such that $\{\tau = s\} = \{p_s(Z_0, \ldots, Z_s) = 1\}$. In addition, there exists a function $q_s$ such that $X_s = q_s(Z_0, \ldots, Z_s)$. Thus, for any $z \in \mathcal{X}$,
+\begin{align*}
+\Prob_x\{&\tau = s, X_s = z, X_t = y\} \\
+&= \Prob_x\{X_t = y | \tau = s, X_s = z\} \Prob_x\{\tau = s, X_s = z\} \\
+&= \Prob_x\{X_t = y | p_s(Z_0, \ldots, Z_s) = 1, q_s(Z_0, \ldots, Z_s) = z\} \Prob_x\{\tau = s, X_s = z\} \\
+&= P^{t-s}(z, y) \Prob_x\{\tau = s, X_\tau = z\}.
+\end{align*}
+Therefore, since $\tau$ is a strong stationary time, and $\pi$ is a stationary distribution for the chain,
+\begin{align*}
+\Prob_x\{\tau \leq t, X_t = y\} &= \sum_{s=0}^t \sum_{z \in \mathcal{X}} \Prob_x\{\tau = s, X_s = z, X_t = y\} \\
+&= \sum_{s=0}^t \sum_{z \in \mathcal{X}} P^{t-s}(z, y) \Prob_x\{\tau = s, X_\tau = z\} \\
+&= \sum_{s=0}^t \sum_{z \in \mathcal{X}} P^{t-s}(z, y) \Prob_x\{\tau = s\} \pi(z) \\
+&= \sum_{s=0}^t \Prob_x\{\tau = s\} \sum_{z \in \mathcal{X}} P^{t-s}(z, y) \pi(z) \\
+&= \Prob_x\{\tau \leq t\} \pi(y).
+\end{align*}
+
+\section*{Exercises from the book}
+
+\subsection*{Exercise 6.1}
+
+Since $\tau$ and $\tau'$ are both stopping times, for any $t \geq 0$ there exist functions $f_t$ and $g_t$ such that
+\begin{equation*}
+I\{\tau = t\} = f_t(Z_0, \ldots, Z_t\} \quad \text{and} \quad I\{\tau' = t\} = g_t(Z_0, \ldots, Z_t\}.
+\end{equation*}
+Thus, for any $t \geq 0$,
+\begin{align*}
+I\{\tau + \tau' = t\} &= I\left\{\bigcup_{s=0}^t \{\tau = s, \tau' = t-s\} \right\} = \sum_{s=0}^t I\{\tau = s, \tau' = t-s\} \\
+&= \sum_{s=0}^t I\{\tau = s\} I\{\tau' = t-s\} = \sum_{s=0}^t f_s(Z_0, \ldots, Z_s) g_{t-s}(Z_0, \ldots, Z_{t-s}) \\
+&= h_t(Z_0, \ldots, Z_t),
+\end{align*}
+a function of $Z_0, \ldots, Z_t$ alone. Thus $\tau + \tau'$ is also a stopping time. In particular, if $r$ is a non-negative integer, then for any $t \geq 0$, $I\{r = t\}$ is trivially a function of $Z_0, \ldots, Z_t$, and hence $r$ is a stopping time. Thus, taking $\tau' = r$ in the above, we see that $\tau + r$ is a stopping time.
+
+\subsection*{Exercise 6.6}
+
+By Exercise 6.4, $s_x$ is weakly decreasing for any $x \in \mathcal{X}$. Thus, for any $x \in \mathcal{X}$ and $t > 0$,
+\begin{equation*}
+s_x(t) = s_x\left(t_0 \frac{t}{t_0}\right) \leq s_x\left(t_0 \left\lfloor \frac{t}{t_0} \right\rfloor \right).
+\end{equation*}
+Thus,
+\begin{equation*}
+s(t) = \max_{x \in \mathcal{X}} s_x(t) \leq \max_{x \in \mathcal{X}} s_x\left(t_0 \left\lfloor \frac{t}{t_0} \right\rfloor \right) = s\left(t_0 \left\lfloor \frac{t}{t_0} \right\rfloor \right) \leq s(t_0)^{\lfloor t / t_0 \rfloor},
+\end{equation*}
+since $s$ is sub-multiplicative by Exercise 6.4. Note that by Lemma 6.12,
+\begin{equation*}
+s(t_0) \leq \max_{x \in \mathcal{X}} \Prob_x\{\tau > t_0\} \leq \epsilon.
+\end{equation*}
+Hence,
+\begin{equation*}
+s(t) \leq s(t_0)^{\lfloor t / t_0 \rfloor} \leq \epsilon^{\lfloor t / t_0 \rfloor},
+\end{equation*}
+so that by Lemma 6.16,
+\begin{equation*}
+d(t) \leq s(t) \leq \epsilon^{\lfloor t / t_0 \rfloor}.
+\end{equation*}
+
+\subsection*{Exercise 6.7}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+First, assume that $\Prob\{Y_t \geq 0\} = 1$ for every $t \geq 1$. We can write
+\begin{equation*}
+\E\left(\sum_{t=1}^\tau Y_t\right) = \E\left(\sum_{t=1}^\infty Y_t I\{\tau \geq t\} \right).
+\end{equation*}
+Define
+\begin{equation*}
+Y_n = \sum_{t=1}^n Y_t I\{\tau \geq t\} \quad \text{for any $n \geq 1$} \\
+\end{equation*}
+and
+\begin{equation*}
+Y = \sum_{t=1}^\infty Y_t I\{\tau \geq t\}.
+\end{equation*}
+Then since $\Prob\{Y_t \geq 0\} = 1$ for every $t \geq 1$, $\Prob\{Y_n \leq Y_{n+1}\} = 1$ for every $n \geq 1$. Thus by Prop. A.11(iii),
+\begin{equation*}
+\lim_{n \to \infty} \E(Y_n) = \E(Y).
+\end{equation*}
+Therefore, since $Y_t$ is independent of $\{\tau \geq t\}$ for every $t \geq 1$,
+\begin{align*}
+\E\left(\sum_{t=1}^\tau Y_t\right) &= \E\left(\sum_{t=1}^\infty Y_t I\{\tau \geq t\} \right) = \E\left(\lim_{n \to \infty} \sum_{t=1}^n Y_t I\{\tau \geq t\} \right) \\
+&= \lim_{n \to \infty} \E\left(\sum_{t=1}^n Y_t I\{\tau \geq t\} \right) = \lim_{n \to \infty} \sum_{t=1}^n \E(Y_t I\{\tau \geq t\}) \\
+&= \sum_{t=1}^\infty \E(Y_t I\{\tau \geq t\}) = \sum_{t=1}^\infty \E(Y_t) \E(I\{\tau \geq t\}) \\
+&= \E(Y_1) \sum_{t=1}^\infty \Prob\{\tau \geq t\} = \E(Y_1) \E(\tau).
+\end{align*}
+Now remove the assumption that $\Prob\{Y_t \geq 0\} = 1$ for every $t \geq 1$. Note that for every $t \geq 0$, we can write $Y_t = Y_t^+ - Y_t^-$, where $Y_t^+ = \max\{0, Y_t\}$ and $Y_t^- = \min\{0, -Y_t\}$. We have
+\begin{equation*}
+\Prob\{Y_t^+ \geq 0\} = \Prob\{Y_t^- \geq 0\} = 1.
+\end{equation*}
+In addition, each of the sequences $(Y_t^+)$ and $(Y_t^-)$ consists of IID random variables with finite expectation, and for every $t \geq 1$, each of $Y_t^+$ and $Y_t^-$ is independent of $\{\tau \geq t\}$. So the above discussion applies to each of the sequences $(Y_t^+)$ and $(Y_t^-)$. Therefore,
+\begin{align*}
+\E\left(\sum_{t=1}^\tau Y_t\right) &= \E\left[\sum_{t=1}^\tau (Y_t^+ - Y_t^-) \right] = \E\left(\sum_{t=1}^\tau Y_t^+\right) - \E\left(\sum_{t=1}^\tau Y_t^-\right) \\
+&= \E(Y_1^+) \E(\tau) - \E(Y_1^-) \E(\tau) = \E(Y_1^+ - Y_1^-) \E(\tau) \\
+&= \E(Y_1) \E(\tau).
+\end{align*}
+
+\item
+Since $\tau$ is a stopping time for $(Y_t)$, for every $s \geq 1$ there exists a function $p_s$ such that
+\begin{equation*}
+\{\tau = s\} = \{p_s(Y_1, \ldots, Y_s) = 1\}.
+\end{equation*}
+In particular, for any $t \geq 1$,
+\begin{equation*}
+\{\tau \geq t\}^c = \{\tau \leq t - 1\} = \bigcup_{s=1}^{t-1} \{\tau = s\} = \bigcup_{s=1}^{t-1} \{p_s(Y_1, \ldots, Y_s) = 1\},
+\end{equation*}
+so that the event $\{\tau \geq t\}^c$, and hence the event $\{\tau \geq t\}$, depends solely upon $Y_1, \ldots, Y_{t-1}$. But since the elements of the sequence $(Y_t)$ are IID, $Y_t$ is independent of $Y_1, \ldots, Y_{t-1}$, and hence $Y_t$ is independent of $\{\tau \geq t\}$.
+
+\subsection*{Exercise 6.8}
+
+(Incomplete).
+
+\section*{Shuffling by insertion}
+
+\subsection*{Exercise 1}
+
+By definition, at each time step the top card of the first deck is inserted uniformly at random into the second deck. At the outset, the second deck contains no cards, and card 1 is at the top of the first deck. Thus at time $k=1$, card 1 is transferred from the first deck to the second deck, and card 1 is the only card in the second deck. Hence $\Prob\{S_1 = (1)\} = 1$.
+
+\subsection*{Exercise 2}
+
+At time $k=1$, card 2 is at the top of the first deck and card 1 is the only card in the second deck. Thus at time $k=2$ there are two possibilities: card 2 is placed above card 1 in the second deck ($S_2 = (2, 1)$), or card 2 is placed below card 1 ($S_2 = (1, 2)$). Since the insertion is uniformly at random, each of these two possibilities is equally likely. In particular, since $S_2 = (2, 1)$ if and only if $R_1 = 1$, we have
+\begin{equation*}
+\Prob\{S_2 = (2, 1)\} = \Prob\{R_1 = 1\} = \frac{1}{2}.
+\end{equation*}
+
+\subsection*{Exercise 3}
+
+At time $k=2$, card 3 is at the top of the first deck, and the second deck contains cards 1 and 2 in some order. Thus at time $k=3$ there are three places to insert card 3, all equally likely. The value of $S_3$ depends on the value of $S_2$ (either $S_2 = (1, 2)$ or $S_2 = (2, 1)$). In particular, we have
+\begin{align*}
+\Prob\{S_3 = (2, 1, 3)\} &= \Prob\{S_3 = (2, 1, 3) | S_2 = (1, 2)\} \Prob\{S_2 = (1, 2)\} \\
+&\qquad\quad+ \Prob\{S_3 = (2, 1, 3) | S_2 = (2, 1)\} \Prob\{S_2 = (2, 1)\} \\
+&= (0)\left(\frac{1}{2}\right) + \left(\frac{1}{3}\right)\left(\frac{1}{2}\right) = \left(\frac{1}{6}\right).
+\end{align*}
+Note that $S_3 = (2, 1, 3)$ if and only if $R_2 = 1$ and $R_3 = 3$. Thus
+\begin{equation*}
+\Prob\{R_2 = 1, R_3 = 3\} = \Prob\{S_3 = (2, 1, 3)\} = \frac{1}{6}.
+\end{equation*}
+
+\subsection*{Exercise 4}
+
+I will proceed by induction on $n$. When $n=1$ we must have $\sigma = (1)$, and since $S_1 = (1)$ if and only if $R_1 = 1$, the base case holds. Now let $n > 1$, and assume the result holds for $S_n$. Consider $S_{n+1} = \sigma = (\sigma(1), \ldots, \sigma(n+1))$. The permutation $S_{n+1}$ is obtained from $S_n$ by sampling a rank uniformly at random from $\{1, \ldots, n+1\}$. Say $R_{n+1} = r_{n+1}$. This implies that $S_n = \sigma'$, where $\sigma'$ is the permutation on $\{1, \ldots, n\}$ defined, for every $1 \leq k \leq n$, by
+\begin{equation*}
+\sigma'(k) = \begin{cases}
+\sigma(k) &\quad \text{if $1 \leq k < r_{n+1}$} \\
+\sigma(k+1) &\quad \text{if $r_{n+1} \leq k \leq n$}.
+\end{cases}
+\end{equation*}
+By assumption there exist unique integers $r_k \in \{1, \ldots, k\}$ for every $1 \leq k \leq n$ such that $S_n = \sigma'$ if and only if $R_k = r_k$ for every $1 \leq k \leq n$. By the above discussion, if $S_{n+1} = \sigma$, then $S_n = \sigma'$ and $R_{n+1} = r_{n+1}$, and thus $R_k = r_k$ for every $1 \leq k \leq n+1$. Conversely, if $R_k = r_k$ for every $1 \leq k \leq n+1$, then $S_n = \sigma'$ and $R_{n+1} = r_{n+1}$, and thus $S_{n+1} = \sigma$. Since the integers $r_1, \ldots, r_n, r_{n+1}$ are unique, we see that the result holds for $S_{n+1}$. So the result holds for every $n \geq 1$ by induction.
+
+By the above result, $S_n = \sigma$ if and only if $R_k = r_k$ for every $1 \leq k \leq n$, where $r_k \in \{1, \ldots, k\}$ are unique integers. Moreover, by definition, $\Prob\{R_k = r_k\} = 1/k$ for every $1 \leq k \leq n$. Thus, since $R_1, R_2, \ldots, R_n$ are independent,
+\begin{align*}
+\Prob\{S_n = \sigma\} &= \Prob\{R_1 = r_1, R_2 = r_2, \ldots, R_n = r_n\} \\
+&= \Prob\{R_1 = r_1\} \Prob\{R_2 = r_2\} \cdots \Prob\{R_n = r_n\} = \frac{1}{n!}.
+\end{align*}
+
+\subsection*{Exercise 5}
+
+(In what follows, the sums are taken over all permutations of $\{1, \ldots, n\}$). Let $\sigma$ be a permutation of $\{1, \ldots, n\}$. Then
+\begin{align*}
+\Prob\{S_n \circ S = \sigma\} &= \sum_{\sigma'} \Prob\{S_n \circ S = \sigma, S_n = \sigma'\} = \sum_{\sigma'} \Prob\{\sigma' \circ S = \sigma\} \Prob\{S_n = \sigma'\} \\
+&= \frac{1}{n!} \sum_{\sigma'} \Prob\{S = (\sigma')^{-1}\sigma\} = \frac{1}{n!} \sum_{\sigma''} \Prob\{S = \sigma''\} = \frac{1}{n!}.
+\end{align*}
+Similarly,
+\begin{align*}
+\Prob\{S \circ S_n = \sigma\} &= \sum_{\sigma'} \Prob\{S \circ S_n = \sigma, S_n = \sigma'\} = \sum_{\sigma'} \Prob\{S \circ \sigma' = \sigma\} \Prob\{S_n = \sigma'\} \\
+&= \frac{1}{n!} \sum_{\sigma'} \Prob\{S = \sigma(\sigma')^{-1}\} = \frac{1}{n!} \sum_{\sigma''} \Prob\{S = \sigma''\} = \frac{1}{n!}.
+\end{align*}
+Thus each of $S_n \circ S$ and $S \circ S_n$ has the same distribution as $S_n$ (i.e., uniform over all permutations of $\{1, \ldots, n\}$).
+
+\subsection*{Exercise 6}
+
+The second deck described in this problem can be regarded as consisting of the cards under the original bottom card (in the context of Prop. 6.11). Exercise 4 shows that when there are $k$ cards under the original bottom card, each of the $k!$ possible permutations of these cards are equally likely. In particular, the time $\tau_\mathrm{top}$ corresponds to the case when all $n$ cards are in the second deck, and so the distribution of the chain is uniform over all possible permutations of the $n$ cards.
+
+\end{enumerate}
+
+\end{document}

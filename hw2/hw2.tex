@@ -1,0 +1,309 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Prob}{\mathrm{P}}
+
+\title{Homework 2}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Linear algebra example}
+\nullstepcounter{section}
+
+Recall that row-equivalent matrices have the same rank. We have
+\begin{equation} \label{eq:1}
+P - I = \begin{pmatrix}
+-1/2 & 1/2 \\
+1/4 & -1/4
+\end{pmatrix}
+\xrightarrow{\text{Row reduces to}}
+\begin{pmatrix}
+1 & -1 \\
+0 & 0
+\end{pmatrix}
+= R,
+\end{equation}
+and therefore $\rank(P-I) = \rank(R) = 1$.
+
+To find the subspace $V$, note that $h$ solves $Ph = h$ if and only if $(P - I)h = 0$, and that the row reduction (\ref{eq:1}) implies that this latter system has the same solutions as the system $Rh = 0$, which is easily seen to have the solution space
+\begin{equation*}
+V = \left\{x
+\begin{pmatrix}
+1 \\
+1
+\end{pmatrix}
+: x \in \mathbb{R} \right\}.
+\end{equation*}
+
+To find the subspace $W$, note that $\mu$ solves $\mu P = \mu$ if and only if $\mu (P - I) = \mu$, which is equivalent to the system $(P - I)^t\mu^t = \mu^t$. Now,
+\begin{equation*}
+(P - I)^t = \begin{pmatrix}
+-1/2 & 1/4 \\
+1/2 & -1/4
+\end{pmatrix}
+\xrightarrow{\text{Row reduces to}}
+\begin{pmatrix}
+1 & -1/2 \\
+0 & 0
+\end{pmatrix}
+= R,
+\end{equation*}
+and thus $(P - I)^t\mu^t = \mu^t$ has the same solutions as the system $R\mu^t = 0$, which is easily seen to have the solution space
+\begin{equation*}
+W = \left\{x
+\begin{pmatrix}
+1 \\
+2
+\end{pmatrix}
+: x \in \mathbb{R} \right\}.
+\end{equation*}
+
+\section*{Basic properties of Markov chains}
+
+\subsection*{Exercise 1}
+\nullstepcounter{subsection}
+
+For the first part of this problem, we have
+\begin{align*}
+\Prob(ABCDE) &= \Prob(E | ABCD) \Prob(ABCD) \\
+&= \Prob(E | ABCD) \Prob(D | ABC) \Prob(ABC) \\
+&= \Prob(E | ABCD) \Prob(D | ABC) \Prob(C | AB) \Prob(AB) \\
+&= \Prob(E | ABCD) \Prob(D | ABC) \Prob(C | AB) \Prob(B | A) \Prob(A)
+\end{align*}
+through basic properties of conditional probability.
+
+As for the generalization to events $A_1, \ldots A_n$, I claim that
+\begin{equation} \label{eq:1}
+\Prob(A_1 \cdots A_n) = \Prob(A_n | A_{n-1} \cdots A_1) \Prob(A_{n-1} | A_{n-2} \cdots A_1) \cdots \Prob(A_2 | A_1) \Prob(A_1).
+\end{equation}
+To prove this, I will proceed by induction on $n$. When $n = 1$ the result is trivial, so let $n > 1$ and suppose that (\ref{eq:1}) holds for any events $A_1, \ldots A_n$. Let $A_{n+1}$ be an arbitrary event. Then
+\begin{align*}
+\Prob(A_1 \cdots A_n A_{n+1}) &= \Prob(A_{n+1} | A_n \cdots A_1) \Prob(A_1 \cdots A_n) \\
+&= \Prob(A_{n+1} | A_n \cdots A_1) \Prob(A_n | A_{n-1} \cdots A_1) \Prob(A_{n-1} | A_{n-2} \cdots A_1) \cdots \Prob(A_2 | A_1) \Prob(A_1)
+\end{align*}
+by the induction hypothesis. Hence (\ref{eq:1}) holds for every $n$ by way of induction.
+
+\subsection*{Exercise 2}
+
+By Exercise 1 and the Markov property,
+\begin{align*}
+% Hacky alignment hack is hacky.
+\Prob_\mu \{&X_t = x_t, X_{t-1} = x_{t-1}, \ldots, X_0 = x_0\} \\
+&= \Prob_\mu \{X_t = x_t | X_{t-1} = x_{t-1}, \ldots, X_0 = x_0\} \Prob_\mu \{X_{t-1} = x_{t-1} | X_{t-2} = x_{t-2}, \ldots, X_0 = x_0\} \\
+&\qquad\quad \times \cdots \times \Prob_\mu \{X_1 = x_1 | X_0 = x_0\} \Prob_\mu \{X_0 = x_0\} \\
+&= \Prob_\mu \{X_t = x_t | X_{t-1} = x_{t-1}\} \Prob_\mu \{X_{t-1} = x_{t-1} | X_{t-2} = x_{t-2}\} \\
+&\qquad\quad \times \cdots \times \Prob_\mu \{X_1 = x_1 | X_0 = x_0\} \Prob_\mu \{X_0 = x_0\} \\
+&= P(x_{t-1}, x_t) P(x_{t-2}, x_{t-1}) \cdots P(x_0, x_1) \mu(x_0).
+\end{align*}
+
+\subsection*{Exercise 3}
+
+\begin{align*}
+\Prob_\mu \{f(X_0, \ldots, X_k) = 1\} &= \sum_{x \in \mathcal{X}} \Prob_\mu \{f(X_0, \ldots, X_k) = 1 | X_0 = x\} \Prob_\mu \{X_0 = x\} \\
+&= \sum_{x \in \mathcal{X}} \Prob_x \{f(X_0, \ldots, X_k) = 1\} \mu(x)
+\end{align*}
+
+\subsection*{Exercise 4}
+
+\begin{equation*}
+\Prob_\mu \{f(X_0, \ldots, X_k) = 1\} = \Prob_\mu \{(X_0, \ldots, X_k) \in \mathcal{P}\} = \sum_{(x_0, \ldots, x_k) \in \mathcal{P}} \Prob_\mu \{X_0 = x_0, \ldots, X_k = x_k\}
+\end{equation*}
+
+\subsection*{Exercise 5}
+
+In order to clarify the manipulations that follow, I will define the following sets:
+\begin{align*}
+\mathcal{P} &= \{(x_0, \ldots, x_t) \in \mathcal{X}^{t+1} : p(x_0, \ldots, x_t) = 1\} \\
+\mathcal{F} &= \{(x_t, \ldots, x_{t+k}) \in \mathcal{X}^{k+1} : f(x_t, \ldots, x_{t+k}) = 1\}.
+\end{align*}
+Then we can write
+\begin{align*}
+% Hacky alignment hack is hacky.
+\Prob_\mu \{&f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t, p(X_0, \ldots, X_t) = 1\} \\
+&= \Prob_\mu \{(X_t, \ldots, X_{t+k}) \in \mathcal{F} | X_t = x_t, (X_0, \ldots, X_t) \in \mathcal{P}\} \\
+&= \Prob_\mu \{(X_t, \ldots, X_{t+k}) \in \mathcal{F} | X_t = x_t\} \\
+&= \Prob_\mu \{f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t\}
+\end{align*}
+by way of the Markov property. Moreover,
+\begin{align*}
+\Prob_\mu \{f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t\} &= \Prob_\mu \{f(X_0, \ldots, X_k) = 1 | X_0 = x_t\} \\
+&= \Prob_{x_t} \{f(X_0, \ldots, X_k) = 1\}
+\end{align*}
+since forcing the chain to be in state $x_t$ at time $t$ has the same effect on the state of the chain at time $t' > t$ that starting the chain in state $x_t$ has on the state of the chain at time $t' - t > 0$.
+
+\subsection*{Exercise 6}
+
+By Exercise 5 and basic properties of conditional probability,
+\begin{align*}
+% Hacky alignment hack is hacky.
+\Prob_\mu \{&f(X_t, \ldots, X_{t+k}) = 1, p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_\mu \{f(X_t, \ldots, X_{t+k}) = 1 | p(X_0, \ldots, X_t) = 1, X_t = x_t\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_\mu \{f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_{x_t} \{f(X_0, \ldots, X_k) = 1\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | X_t = x_t\}.
+\end{align*}
+
+\subsection*{Exercise 7}
+
+In order to clarify the manipulations that follow, I will define the following sets:
+\begin{align*}
+\mathcal{P} &= \{(x_0, \ldots, x_t) \in \mathcal{X}^{t+1} : p(x_0, \ldots, x_t) = 1\} \\
+\mathcal{F} &= \{(x_{t+m}, \ldots, x_{t+m+k}) \in \mathcal{X}^{k+1} : f(x_{t+m}, \ldots, x_{t+m+k}) = 1\}.
+\end{align*}
+Then we can write
+\begin{align*}
+% Hacky alignment hack is hacky.
+\Prob_\mu \{&f(X_{t+m}, \ldots, X_{t+m+k}) = 1, p(X_0, \ldots, X_t) = 1 | E\} \\
+&= \Prob_\mu \{f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | E \cap \{p(X_0, \ldots, X_t) = 1\}\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | E\} \\
+&= \Prob_\mu \{(X_{t+m}, \ldots, X_{t+m+k}) \in \mathcal{F} | E \cap \{(X_0, \ldots, X_t) \in \mathcal{P}\}\} \Prob_\mu \{(X_0, \ldots, X_t) \in \mathcal{P} | E\} \\
+&= \Prob_\mu \{(X_{t+m}, \ldots, X_{t+m+k}) \in \mathcal{F} | E\} \Prob_\mu \{(X_0, \ldots, X_t) \in \mathcal{P} | E\} \\
+&= \Prob_\mu \{f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | E\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | E\}
+\end{align*}
+by way of the Markov property and basic properties of conditional probability. Moreover, the Markov property and the result of Exercise 5 imply that
+\begin{align*}
+\Prob_\mu \{&f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | E\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | E\} \\
+&= \Prob_\mu \{(X_{t+m}, \ldots, X_{t+m+k}) \in \mathcal{F} | X_{t+m} = x_{t+m}\} \Prob_\mu \{(X_0, \ldots, X_t) \in \mathcal{P} | X_t = x_t\} \\
+&= \Prob_\mu \{f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | X_{t+m} = x_{t+m}\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_{x_{t+m}} \{f(X_0, \ldots, X_k) = 1\} \Prob_\mu \{p(X_0, \ldots, X_t) = 1 | X_t = x_t\}.
+\end{align*}
+Note that the above equalities still hold if we condition on $\{X_t = x_t, X_{t+m} = x_{t+m}\}$ rather than $E$. This is because, due to the Markov property, conditioning on $E$ in the above is equivalent to conditioning on either $X_t = x_t$ or $X_{t+m} = x_{t+m}$ depending on context; specifically,
+\begin{align*}
+&\Prob_\mu \{(X_{t+m}, \ldots, X_{t+m+k}) \in \mathcal{F} | E\} = \Prob_\mu \{(X_{t+m}, \ldots, X_{t+m+k}) \in \mathcal{F} | X_{t+m} = x_{t+m}\}\\
+&\Prob_\mu \{(X_0, \ldots, X_t) \in \mathcal{P} | E\} = \Prob_\mu \{(X_0, \ldots, X_t) \in \mathcal{P} | X_t = x_t\}.
+\end{align*}
+
+\section*{Problems from the book}
+
+\subsection*{Exercise 1.2}
+
+Suppose $G$ is connected. Let $x, y \in V$. Since $G$ is connected there exists a sequence $x = x_0, x_1, \ldots, x_k = y$ of vertices leading from $x$ to $y$. In particular, the definition of the random walk on $G$ implies that there is a positive probability of reaching $y$ from $x$ in precisely $k$ steps. Hence $P^k(x, y) > 0$, so that the random walk is irreducible.
+
+Conversely, suppose the random walk on $G$ is irreducible. Let $x, y \in V$. Since the random walk is irreducible there exists an integer $k \geq 0$ with $P^k(x, y) > 0$. The definition of the random walk on $G$ therefore implies that it is possible to reach $y$ from $x$ in precisely $k$ steps; that is, there exists a sequence $x = x_0, x_1, \ldots, x_k = y$ of vertices leading from $x$ to $y$. Hence $G$ is connected.
+
+\subsection*{Exercise 1.6}
+
+Fix a state $x_0 \in \mathcal{X}$, and for each $1 \leq i \leq b - 1$ define a set
+\begin{equation*}
+C_i = \{x \in \mathcal{X} : P^{mb + i}(x_0, x) > 0 \ \text{for some $m \geq 0$}\}.
+\end{equation*}
+I claim that the $C_i$'s form a partition of $\mathcal{X}$. Let $x \in \mathcal{X}$. Then since the chain is irreducible there exists an integer $t \geq 0$ with $P^t(x_0, x) > 0$. However, $t = mb + i$ for some choice of integers $m \geq 0$ and $0 \leq i \leq b - 1$. Hence $x \in C_i$. Now suppose $x \in C_j$ as well for some other index $0 \leq j \leq b - 1$. Since the chain is irreducible there exists an integer $r \geq 0$ with $P^r(x, x_0) > 0$. Hence
+\begin{equation*}
+P^{mb+i+r}(x_0, x_0) \geq P^{mb+i}(x_0, x) P^r(x, x_0) > 0.
+\end{equation*}
+Thus, since the chain has period $b$, we have that $b$ divides $(mb+i+r)$, and hence divides $(i+r)$. Similarly, $b$ divides $(j+r)$. If $i \geq j$, then $b$ divides $(i+r) - (j+r) = i-j \geq 0$, and since $0 \leq i, j \leq b - 1$, we must have $i - j = 0$, so that $i = j$. If $i \leq j$, then we reach the same conclusion. Thus $i = j$ in any case, so that $x$ belongs to one and only one of the $C_i$'s. So the $C_i$'s partition $\mathcal{X}$, as claimed.
+
+Now let $x, y \in \mathcal{X}$ satisfy $P(x, y) > 0$. By the above argument, $x \in C_i$ for some $0 \leq i \leq b - 1$. Thus $P^{mb+i}(x_0, x) > 0$ for some integer $m \geq 0$, so that
+\begin{equation*}
+P^{mb+(i+1)}(x_0, y) \geq P^{mb+i}(x_0, x) P(x, y) > 0.
+\end{equation*}
+Hence $y \in C_{i+1}$ (where the addition $(i+1)$ is modulo $b$).
+
+\subsection*{Exercise 1.7}
+
+Note that the stationary distribution $\pi$ on $\mathcal{X}$ is given by
+\begin{equation*}
+\pi(x) = \frac{1}{|\mathcal{X}|} \quad \text{for any $x \in \mathcal{X}$}.
+\end{equation*}
+In particular, $\pi(x) = \pi(y)$ for any $x, y \in \mathcal{X}$. Thus for any $y \in \mathcal{X}$, the symmetry of $P$ implies that
+\begin{equation*}
+\sum_{x \in \mathcal{X}} \pi(x) P(x, y) = \sum_{x \in \mathcal{X}} \pi(y) P(y, x) = \pi(y) \sum_{x \in \mathcal{X}} P(y, x) = \pi(y),
+\end{equation*}
+so that $\pi$ is stationary for $P$.
+
+\subsection*{Exercise 1.8}
+
+For any $x, y \in \mathcal{X}$,
+\begin{align*}
+\pi(x) P^2(x, y) &= \pi(x) \sum_{z \in \mathcal{X}} P(x, z) P(z, y) = \sum_{z \in \mathcal{X}} \pi(x) P(x, z) P(z, y) \\
+&= \sum_{z \in \mathcal{X}} \pi(z) P(z, x) P(z, y) = \sum_{z \in \mathcal{X}} \pi(z) P(z, y) P(z, x) \\
+&= \sum_{z \in \mathcal{X}} \pi(y) P(y, z) P(z, x) = \pi(y) \sum_{z \in \mathcal{X}} P(y, z) P(z, x) \\
+&= \pi(y) P^2(y, x).
+\end{align*}
+Thus $P^2$ is also reversible with respect to $\pi$.
+
+\subsection*{Exercise 1.9}
+
+Let $z \in \mathcal{X}$ be the starting state of the chain. For any $y \in \mathcal{X}$, define a random variable $N_y$ to be the number of visits the chain makes to $y$ before returning to $z$. Then the distribution $\tilde{\pi}$ is defined by
+\begin{equation*}
+\tilde{\pi}(y) = \E_z(N_y) \quad \text{for any $y \in \mathcal{X}$}.
+\end{equation*}
+For any $y \in \mathcal{X}$ and integer $t \geq 0$, define a random variable $N_{y,t}$ to be the number of visits the chain makes to $y$ at time $t$ before returning to $z$ (hence $N_{y,t} = 0$ or $N_{y,t} = 1$). Note that the condition $N_{y,t} = 1$ is equivalent to the condition that the chain be in state $y$ at time $t$, and that $\tau_z^+ > t$. Therefore,
+\begin{equation*}
+E(N_{y,t}) = 0 \cdot \Prob \{N_{y,t} = 0\} + 1 \cdot \Prob \{N_{y,t} = 1\} = \Prob \{N_{y,t} = 1\} = \Prob \{X_t = y, \tau_z^+ > t\}.
+\end{equation*}
+Moreover, note that $N_y = \sum_{t=0}^\infty N_{y,t}$. Thus, for any $y \in \mathcal{X}$,
+\begin{equation*}
+\tilde{\pi}(y) = \E_z(N_y) = \E_z\left(\sum_{t=0}^\infty N_{y,t}\right) = \sum_{t=0}^\infty \E_z(N_{y,t}) = \sum_{t=0}^\infty \Prob \{X_t = y, \tau_z^+ > t\}.
+\end{equation*}
+
+\subsection*{Exercise 1.11}
+\nullstepcounter{subsection}
+
+First, note that if $\pi$ is a stationary distribution for an irreducible Markov chain, then $\pi(x) > 0$ for every $x \in \mathcal{X}$. To see this, let $x \in \mathcal{X}$. Since $\pi$ is a probability distribution, there exists a state $z \in \mathcal{X}$ with $\pi(z) > 0$. Then since the chain is irreducible there exists an integer $t \geq 0$ with $P^t(z, x) > 0$. Therefore, since $\pi$ is stationary,
+\begin{equation*}
+\pi(x) = \sum_{y \in \mathcal{X}} \pi(y) P^t(y, x) \geq \pi(z) P^t(z, x) > 0.
+\end{equation*}
+In particular, this means that the ratio $\pi_1(x) / \pi_2(x)$ is defined for any $x \in \mathcal{X}$. Thus, since the state space $\mathcal{X}$ is finite, there exists a state $x \in \mathcal{X}$ that minimizes the ratio $\pi_1(x) / \pi_2(x)$. The fact that $\pi_1$ and $\pi_2$ are stationary for this chain implies that for any integer $t \geq 0$,
+\begin{equation} \label{eq:1}
+\pi_1(x) = \sum_{y \in \mathcal{X}} \pi_1(y) P^t(y, x)
+\end{equation}
+and
+\begin{equation} \label{eq:2}
+\pi_1(x) = \frac{\pi_1(x)}{\pi_2(x)} \pi_2(x) = \sum_{y \in \mathcal{X}} \frac{\pi_1(x)}{\pi_2(x)} \pi_2(y) P^t(y, x).
+\end{equation}
+Subtracting (\ref{eq:2}) from (\ref{eq:1}), we get
+\begin{equation} \label{eq:3}
+\sum_{y \in \mathcal{X}} \left[\pi_1(y) - \frac{\pi_1(x)}{\pi_2(x)} \pi_2(y) \right] P^t(y, x) = 0.
+\end{equation}
+Note that for any $y \in \mathcal{X}$,
+\begin{equation*}
+\frac{\pi_1(x)}{\pi_2(x)} \pi_2(y) \leq \frac{\pi_1(y)}{\pi_2(y)} \pi_2(y) = \pi_1(y)
+\end{equation*}
+since $x$ minimizes the ratio $\pi_1(x) / \pi_2(x)$ by construction. Thus each term in the sum (\ref{eq:3}) is zero, and hence for any $y \in \mathcal{X}$ with $P^t(y, x) > 0$,
+\begin{equation} \label{eq:4}
+\pi_1(y) = \frac{\pi_1(x)}{\pi_2(x)} \pi_2(y).
+\end{equation}
+However, since the chain is irreducible, we can always choose $t \geq 0$ such that $P^t(y, x) > 0$ for a given state $y \in \mathcal{X}$, and hence by rearranging (\ref{eq:4}) we see that
+\begin{equation*}
+\frac{\pi_1(y)}{\pi_2(y)} = \frac{\pi_1(x)}{\pi_2(x)} \quad \text{for any $y \in \mathcal{X}$}.
+\end{equation*}
+In particular, $\pi_1(y) / \pi_2(y) = \pi_1(z) / \pi_2(z)$ for any $y, z \in \mathcal{X}$, and therefore,
+\begin{equation*}
+1 = \sum_{y \in \mathcal{X}} \pi_1(y) = \sum_{y \in \mathcal{X}} \frac{\pi_1(z)}{\pi_2(z)} \pi_2(y) = \frac{\pi_1(z)}{\pi_2(z)},
+\end{equation*}
+so that $\pi_1(z) = \pi_2(z)$. Thus $\pi_1 = \pi_2$, so that the chain has a unique stationary distribution.
+
+\end{document}

@@ -1,0 +1,369 @@
+\documentclass[12pt]{article}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+%\usepackage[top=0.9in, bottom=0.9in, left=0.5in, right=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{chngcntr}
+
+%\usepackage{titlesec}
+
+% Perhaps not semantically ideal, but it works.
+%\titleformat*{\section}{\large\bfseries}
+
+\setenumerate{parsep=0em, listparindent=\parindent}
+
+% Hacky macro to reset equation numbering within sections and subsections. See:
+% https://tex.stackexchange.com/questions/264335/when-using-section-counters-dont-reset-properly-how-to-fix-this
+\makeatletter
+\def\nullstepcounter#1{%
+	\begingroup
+		\let\@elt\@stpelt
+		\csname cl@#1\endcsname
+	\endgroup}
+\makeatother
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\DeclareMathOperator{\rank}{rank}
+
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Prob}{\mathrm{P}}
+
+\title{Homework 4}
+\author{Benjamin Noland}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Ergodic Theorem}
+
+\subsection*{Exercise 1}
+
+Since $\Prob(A) = \Prob(B) = 1$, $\Prob(A^c) = \Prob(B^c) = 0$, and hence
+\begin{equation*}
+\Prob(A^c \cup B^c) \leq \Prob(A^c) + \Prob(B^c) = 0.
+\end{equation*}
+Thus, upon taking complements, we find
+\begin{equation*}
+\Prob(A \cap B) = 1 - \Prob(A^c \cup B^c) \geq 1 - 0 = 1,
+\end{equation*}
+so that $\Prob(A^c \cup B^c) = 1$.
+
+\subsection*{Exercise 2}
+\nullstepcounter{subsection}
+
+Define a map $h : \cup_{m=0}^\infty \mathcal{X}^{m+1} \to \mathbb{R}$ by
+\begin{equation} \label{eq:1}
+h(x_0, \ldots, x_t) = \sum_{i=0}^t f(x_i) \quad \text{for any $x_0, \ldots, x_t \in \cup_{m=0}^\infty \mathcal{X}^{m+1}$}.
+\end{equation}
+Then for any $k \geq 0$, we can write $S_k = h(X_{\tau_x^k}, X_{\tau_x^k+1}, \ldots, X_{\tau_x^{k+1}-1})$. Roughly speaking, the fact that the $S_k$'s are IID follows from the fact that the chain starts afresh at each return time $\tau_x^k$. This can probably be formalized using Exercises 7 and 8 of the Strong Markov Property question, along with the map defined in (\ref{eq:1}) (but I don't have time to figure this out).
+
+\subsection*{Exercise 3}
+
+First, note that $\E_x(|S_0|) < \infty$. To see this, note that since the state space $\mathcal{X}$ is finite, we can set
+\begin{equation*}
+M = \max_{x \in \mathcal{X}} |f(x)|.
+\end{equation*}
+Thus,
+\begin{equation*}
+\E_x(|S_0|) = \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} f(X_t) \right) \leq \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} M \right) = \E_x(M \tau)x^1) = M\E_x(\tau_x^1) < \infty
+\end{equation*}
+where the fact that $\E_x(\tau_x^1) < \infty$ follows from Lemma 1.13, since the chain is irreducible. Note that for any $n \geq 0$ we have the relation
+\begin{equation*}
+\sum_{k=0}^{n-1} S_k = \sum_{k=0}^{n-1} \sum_{t=\tau_x^k}^{\tau_x^{k+1} - 1} f(X_t) = \sum_{t=0}^{\tau_x^n - 1} f(X_t).
+\end{equation*}
+Thus, since the $S_k$'s are IID, the Strong Law of Large Numbers yields
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \frac{1}{n} \sum_{t=0}^{\tau_x^n - 1} f(X_t) = \E_x(S_0) \right\} = 1.
+\end{equation*}
+In addition, note that for any $k \geq 0$,
+\begin{equation*}
+\tau_x^{k+1} - \tau_x^k = \inf\{t - \tau_x^k > 0 : X_{t - \tau_x^k} = x\},
+\end{equation*}
+% TODO: This part should probably be more formal...
+so that $(\tau_x^{k+1} - \tau_x^k)$ has the same distribution as $\tau_x^1$, since the chain starts afresh at time $\tau_x^k$. In addition, this implies that the differences $(\tau_x^{k+1} - \tau_x^k)$ are mutually independent, and hence IID. Moreover, for any $n \geq 1$,
+\begin{equation*}
+\tau_x^n = \sum_{k=0}^{n-1} (\tau_x^{k+1} - \tau_x^k),
+\end{equation*}
+and that $\E_x(\tau_x^1 - \tau_x^0) = \E_x(\tau_x^1) < \infty$ by Lemma 1.13, since the chain is irreducible. So the Strong Law of Large Numbers yields
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \frac{1}{n} \tau_x^n = \E_x(\tau_x^1) \right\} = 1.
+\end{equation*}
+Thus, applying Exercise 1 of this problem, we get
+\begin{align*}
+1 &= \Prob_x\left\{\lim_{n \to \infty} \frac{1}{n} \sum_{t=0}^{\tau_x^n - 1} f(X_t) = \E_x(S_0), \lim_{n \to \infty} \frac{1}{n} \tau_x^n = \E_x(\tau_x^1) \right\} \\
+&\leq \Prob_x\left\{\lim_{n \to \infty} \frac{1}{\tau_x^n} \sum_{t=0}^{\tau_x^n - 1} f(X_t) = \frac{\E_x(S_0)}{\E_x(\tau_x^1)} \right\},
+\end{align*}
+so that
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \frac{1}{\tau_x^n} \sum_{t=0}^{\tau_x^n - 1} f(X_t) = L \right\} = 1 \quad \text{where} \quad L = \frac{\E_x(S_0)}{\E_x(\tau_x^1)}
+\end{equation*}
+
+\subsection*{Exercise 4}
+
+First, note that
+\begin{align*}
+\E_x(S_0) &= \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} f(X_t) \right) = \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} \sum_{y \in \mathcal{X}} I\{X_t = y\} f(y) \right) \\
+&= \E_x\left(\sum_{y \in \mathcal{X}} f(y) \sum_{t=0}^{\tau_x^1 - 1} I\{X_t = y\} \right) = \sum_{y \in \mathcal{X}} f(y) \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} I\{X_t = y\} \right).
+\end{align*}
+But note that $\sum_{t=0}^{\tau_x^1 - 1} I\{X_t = y\}$ is the number of visits to state $y$ before returning to state $x$. Thus,
+\begin{equation*}
+\tilde{\pi}(y) = \E_x\left(\sum_{t=0}^{\tau_x^1 - 1} I\{X_t = y\} \right),
+\end{equation*}
+where $\tilde{\pi}$ is the distribution defined on page 11 of the book. Therefore, since $\E_x(\tau_x^1) < \infty$ by Lemma 1.13, and since $\pi$ is the unique stationary distribution of the chain by Corollary 1.17, Proposition 1.14(ii) implies that
+\begin{equation*}
+\pi = \frac{\tilde{\pi}}{\E_x(\tau_x^1)}.
+\end{equation*}
+Thus,
+\begin{equation*}
+\E_x(S_0) = \sum_{y \in \mathcal{X}} f(y) \tilde{\pi}(y) = \sum_{y \in \mathcal{X}} f(y) \pi(y) \E_x(\tau_x^1),
+\end{equation*}
+so that
+\begin{equation*}
+L = \frac{\E_x(S_0)}{\E_x(\tau_x^1)} = \sum_{y \in \mathcal{X}} f(y) \pi(y) = E_\pi(f).
+\end{equation*}
+
+\subsection*{Exercise 5}
+
+For every integer $T \geq 1$, define
+\begin{equation*}
+A_T = \frac{1}{T} \sum_{i=1}^T a_i.
+\end{equation*}
+Then for any choice of $T \geq 1$, since $T_k \to \infty$ as $k \to \infty$, there exists $k \geq 1$ satisfying $T_k \leq T \leq T_{k+1}$. Thus we can write
+\begin{equation*}
+A_T = \frac{1}{T} \sum_{i=1}^T a_i = \frac{T_k}{T} \left(\frac{1}{T_k} \sum_{i=1}^{T_k} a_i \right) + \frac{1}{T} \sum_{i=T_k + 1}^T a_i = \frac{T_k}{T} A_{T_k} + \frac{1}{T} \sum_{i=T_k + 1}^T a_i.
+\end{equation*}
+I will consider each term in this expression separately. Since $T_k \leq T \leq T_{k+1}$,
+\begin{equation*}
+A_{T_k} = \frac{T_k}{T_k} A_{T_k} \leq \frac{T_k}{T} A_{T_k} \leq \frac{T_k}{T_{k+1}} A_{T_k}.
+\end{equation*}
+Thus, since $A_{T_k} \to L$ and $T_k / T_{k+1} \to 1$ as $k \to \infty$, we see that
+\begin{equation*}
+\lim_{k \to \infty} \frac{T_k}{T} A_{T_k} = L,
+\end{equation*}
+or equivalently, since $T_k \leq T \leq T_{k+1}$,
+\begin{equation*}
+\lim_{T \to \infty} \frac{T_k}{T} A_{T_k} = L.
+\end{equation*}
+As for the second term, since $a_i \in [-M, M]$ for every $i \geq 1$,
+\begin{align*}
+\left| \frac{1}{T} \sum_{i=T_k + 1}^T a_i \right| &\leq \frac{1}{T} \sum_{i=T_k + 1}^T |a_i| \leq \frac{1}{T} \sum_{i=T_k + 1}^T M = \frac{M}{T}(T-T_k) \leq \frac{M}{T}(T_{k+1}-T_k) \\
+&\leq \frac{M}{T_k}(T_{k+1}-T_k) = M\left(\frac{T_{k+1}}{T_k} - 1 \right) \to 0 \quad \text{as} \quad T \to \infty
+\end{align*}
+since because $T_k / T_{k+1} \to 1$ as $T \to \infty$, $T_{k+1} / T_k \to 1$ as $T \to \infty$ as well. Therefore
+\begin{equation*}
+\lim_{T \to \infty} \frac{1}{T} \sum_{i=T_k + 1}^T a_i = 0,
+\end{equation*}
+so that
+\begin{equation*}
+\lim_{T \to \infty} \frac{1}{T} \sum_{i=1}^T a_i = L.
+\end{equation*}
+
+\subsection*{Exercise 6}
+\nullstepcounter{subsection}
+
+To see that $\tau_x^n \geq n$ for every $n \geq 0$, I will proceed by induction on $n$. When $n = 0$, we have
+\begin{equation*}
+\tau_x^0 = 0 \geq 0
+\end{equation*}
+by definition. Now let $n > 0$, and suppose that $\tau_x^n \geq n$. Then
+\begin{equation*}
+\tau_x^{n+1} = \inf\{t > \tau_x^n : X_t = x\} = \inf\{t \geq \tau_x^n + 1 : X_t = x\} \geq \tau_x^n + 1 \geq n + 1
+\end{equation*}
+by the inductive hypotheses. Hence $\tau_x^n \geq n$ for every $n \geq 0$ by induction. In particular, this result implies that
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \tau_x^n = \infty\right\} = 1.
+\end{equation*}
+Moreover, note that for every $n \geq 0$,
+\begin{equation} \label{eq:1}
+\frac{\tau_x^n}{\tau_x^{n+1}} < \frac{\tau_x^n + \tau_x^1}{\tau_x^{n+1} + \tau_x^1},
+\end{equation}
+where the ratio $(\tau_x^n + \tau_x^1) / (\tau_x^{n+1} + \tau_x^1)$ has the same distribution as $\tau_x^{n+1} / \tau_x^{n+2}$, since the chain starts afresh at each of the times $\tau_x^n$ and $\tau_x^{n+1}$. Thus, since $\tau_x^n / \tau_x^{n+1} \leq 1$ by definition, it follows from the inequality (\ref{eq:1}) that the ratio $\tau_x^n / \tau_x^{n+1}$ can be made arbitrarily close to $1$ if $n$ is chosen large enough. Therefore,
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \frac{\tau_x^n}{\tau_x^{n+1}} = 1 \right\} = 1.
+\end{equation*}
+Since the function $f$ is bounded (specifically, $f : \mathcal{X} \to [-M, M]$ for some $M > 0$), it follows from Exercise 5 of this problem that
+\begin{equation*}
+1 = \Prob_x\left\{\lim_{n \to \infty} \frac{1}{\tau_x^n} \sum_{t=0}^{\tau_x^n - 1} f(X_t) = E_\pi(f) \right\} \leq \Prob_x\left\{\lim_{n \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} f(X_t) = E_\pi(f) \right\},
+\end{equation*}
+and the result follows.
+
+\subsection*{Exercise 7}
+
+By Exercise 6 of this problem,
+\begin{align*}
+\Prob_\mu\left\{\lim_{n \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} f(X_t) = E_\pi(f) \right\} &= \sum_{x \in \mathcal{X}} \Prob\left\{\lim_{n \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} f(X_t) = E_\pi(f) \bigg| X_0 = x\right\} \Prob\{X_0 = x\} \\
+&= \sum_{x \in \mathcal{X}} \Prob_x\left\{\lim_{n \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} f(X_t) = E_\pi(f) \right\} \mu(x) \\
+&= \sum_{x \in \mathcal{X}} \mu(x) = 1.
+\end{align*}
+
+\subsection*{Exercise 8}
+
+The map $f : \mathcal{X} \to \{0, 1\}$ is given by
+\begin{equation*}
+f(y) = I\{y = x_0\} \quad \text{for any $y \in \mathcal{X}$}.
+\end{equation*}
+Thus,
+\begin{equation*}
+E_\pi(f) = \sum_{y \in \mathcal{X}} \pi(y) f(y) = \sum_{y \in \mathcal{X}} \pi(y) I\{y = x_0\} = \pi(x_0).
+\end{equation*}
+So in this special case the result becomes
+\begin{equation*}
+\Prob_x\left\{\lim_{n \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} I\{X_t = x_0\} = \pi(x_0) \right\} = 1
+\end{equation*}
+(i.e., we expect the long run proportion of time spent in state $x_0$ to be $\pi(x_0)$).
+
+\section*{Random mapping representation}
+
+\subsection*{Exercises from Homework 2}
+
+\subsubsection*{Exercise 5}
+
+Using the given random mapping representation, we get
+\begin{align*}
+\Prob_\mu\{&f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t, p(X_0, \ldots, X_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, \ldots, X_{t+k}) = 1 | p(X_0, \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k}) = 1 | p(r_0(Z_0), r(X_0, Z_0), \ldots, x_t) = 1\}.
+\end{align*}
+But notice that the event $\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k}) = 1\}$ depends solely upon $Z_{t+1}, \ldots, Z_{t+k}$, and that the event $\{p(r_0(Z_0), r(X_0, Z_0), \ldots, x_t) = 1\}$ depends solely upon $Z_0, \ldots, Z_{t-1}$. Hence these two events are independent, and so we can write
+\begin{align*}
+\Prob_\mu\{&f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k}) = 1 | p(r_0(Z_0), r(X_0, Z_0), \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k}) = 1\} \\
+&= \Prob_\mu\{f(X_t, r(X_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k}) = 1 | X_t = x_t\} \\
+&= \Prob_\mu\{f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t\} \\
+&= \Prob_{x_t}\{f(X_0, \ldots, X_k) = 1\},
+\end{align*}
+where the final equality follows from the time-homogeneity of the chain.
+
+\subsubsection*{Exercise 6}
+
+Using the given random mapping representation, we get
+\begin{align*}
+\Prob_\mu\{&f(X_t, \ldots, X_{t+k}) = 1, p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_\mu\{f(x_t, \ldots, X_{t+k}) = 1, p(X_0, \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k})) = 1, p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1\}.
+\end{align*}
+But notice that the event $\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k})) = 1\}$ depends solely upon $Z_{t+1}, \ldots, Z_{t+k}$, and that the event $\{p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1\}$ depends solely upon $Z_0, \ldots, Z_{t-1}$. Hence these two events are independent, and so we can write
+\begin{align*}
+\Prob_\mu\{&f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k})) = 1, p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, r(x_t, Z_{t+1}), \ldots, r(X_{t+k-1}, Z_{t+k})) = 1\} \Prob_\mu\{p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(x_t, \ldots, X_{t+k}) = 1\} \Prob_\mu\{p(X_0, \ldots, x_t) = 1\} \\
+&= \Prob_\mu\{f(X_t, \ldots, X_{t+k}) = 1 | X_t = x_t\} \Prob_\mu\{p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_{x_t}\{f(X_0, \ldots, X_k) = 1\} \Prob_\mu\{p(X_0, \ldots, X_t) = 1 | X_t = x_t\},
+\end{align*}
+where the final equality follows from the time-homogeneity of the chain.
+
+\subsubsection*{Exercise 7}
+
+Using the given random mapping representation, we get
+\begin{align*}
+\Prob_\mu\{&f(X_{t+m}, \ldots, X_{t+m+k}) = 1, p(X_0, \ldots, X_t) = 1 | E\} \\
+&= \Prob_\mu\{f(x_{t+m}, r(x_{t+m}, Z_{t+m+1}), \ldots, r(X_{t+m+k-1}, Z_{t+m+k})) = 1, \\
+&\qquad \quad p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1 | E\}.
+\end{align*}
+But notice that the event $\{f(x_{t+m}, r(x_{t+m}, Z_{t+m+1}), \ldots, r(X_{t+m+k-1}, Z_{t+m+k})) = 1\}$ depends solely upon $Z_{t+m+1}, \ldots, Z_{t+m+k}$, and that the event $\{p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1\}$ depends solely upon $Z_0, \ldots, Z_{t-1}$. Hence these two events are independent under conditioning on $E$, and so we can write
+\begin{align*}
+\Prob_\mu\{&f(x_{t+m}, r(x_{t+m}, Z_{t+m+1}), \ldots, r(X_{t+m+k-1}, Z_{t+m+k})) = 1, \\
+& \quad p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1 | E\} \\
+&= \Prob_\mu\{f(x_{t+m}, r(x_{t+m}, Z_{t+m+1}), \ldots, r(X_{t+m+k-1}, Z_{t+m+k})) = 1 | E\} \\
+&\qquad \times \Prob_\mu\{p(r_0(Z_0), r(X_0, Z_1), \ldots, x_t) = 1 | E\} \\
+&= \Prob_\mu\{f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | E\} \Prob_\mu\{p(X_0, \ldots, X_t) = 1 | E\} \\
+&= \Prob_\mu\{f(X_{t+m}, \ldots, X_{t+m+k}) = 1 | X_{t+m} = x_{t+m}\} \Prob_\mu\{p(X_0, \ldots, X_t) = 1 | X_t = x_t\} \\
+&= \Prob_{x_{t+m}}\{f(X_0, \ldots, X_k) = 1\} \Prob_\mu\{p(X_0, \ldots, X_t) = 1 | X_t = x_t\},
+\end{align*}
+where the final equality follows from the time-homogeneity of the chain. As before, the result still holds if $E$ is replaced by $\{X_t = x_t, X_{t+m} = x_{t+m}\}$.
+
+\subsection*{Exercises from Homework 3}
+
+\subsubsection*{Exercise 5}
+
+(Ran out of time).
+
+\subsubsection*{Exercise 7}
+
+(Ran out of time).
+
+\section*{Exercises from the book}
+
+\subsection*{Exercise 3.1}
+
+We want to show that
+\begin{equation*}
+\pi(x) P(x, y) = \pi(y) P(y, x) \quad \text{for every $x, y \in \mathcal{X}$}.
+\end{equation*}
+Let $x, y \in \mathcal{X}$. When $x = y$ the relation holds trivially, so assume $x \neq y$. Then
+\begin{align*}
+\pi(x) P(x, y) &= \pi(x) \Psi(x, y) \left[\frac{\pi(y) \Psi(y, x)}{\pi(x) \Psi(x, y)} \wedge 1\right] = [\pi(y) \Psi(y, x) \wedge \pi(x) \Psi(x, y)] \\
+&= \pi(y) \Psi(y, x) \left[1 \wedge \frac{\pi(x) \Psi(x, y)}{\pi(y) \Psi(y, x)} \right] = \pi(y) P(y, x).
+\end{align*}
+Hence the chain is reversible, and $\pi$ is stationary for $P$ by Proposition 1.20.
+
+\subsection*{Exercise 3.2}
+\nullstepcounter{subsection}
+
+Let $x, y \in \mathcal{X}$. We want to show that
+\begin{equation} \label{eq:1}
+\pi(x) P(x, y) = \pi(y) P(y, x) \quad \text{for every $x, y \in \mathcal{X}$}.
+\end{equation}
+Note that $P(x, y) > 0$ if and only if there exists a unique $v \in V$ with $y \in \mathcal{X}(x, v)$. In addition, note that $y \in \mathcal{X}(x, v)$ if and only if $x \in \mathcal{X}(y, v)$. Thus if such a unique $v \in V$ does not exist, then $P(x, y) = P(y, x) = 0$, and the relation (\ref{eq:1}) holds trivially. On the other hand, if such a unique $v \in V$ does exist, then
+\begin{equation*}
+P(x, y) = \frac{1}{|V|} \pi^{x, v}(y) = \frac{1}{|V|} \frac{\pi(y)}{k_x},
+\end{equation*}
+where $k_x = \sum_{z \in \mathcal{X}(x, v)} \pi(z)$. In addition, noting that $\mathcal{X}(x, v) = \mathcal{X}(y, v)$, we see that
+\begin{equation*}
+k_y = \sum_{z \in \mathcal{X}(y, v)} \pi(z) = \sum_{z \in \mathcal{X}(x, v)} \pi(z) = k_x,
+\end{equation*}
+and thus
+\begin{equation*}
+P(y, x) = \frac{1}{|V|} \pi^{y, v}(x) = \frac{1}{|V|} \frac{\pi(x)}{k_y} = \frac{1}{|V|} \frac{\pi(x)}{k_x}.
+\end{equation*}
+Therefore,
+\begin{equation*}
+\pi(x) P(x, y) = \pi(x) \left[\frac{1}{|V|} \frac{\pi(y)}{k_x} \right] = \pi(y) \left[\frac{1}{|V|} \frac{\pi(x)}{k_x} \right] = \pi(y) P(y, x).
+\end{equation*}
+Hence the chain is reversible, and $\pi$ is stationary for $P$ by Proposition 1.20.
+
+\section*{Metropolis on graphs}
+
+\subsection*{Exercises 1-2}
+
+See the file \texttt{Metropolis\_on\_graphs\_1.ipynb}.
+
+\subsection*{Exercise 3}
+
+See the file \texttt{Metropolis\_on\_graphs\_3.ipynb}.
+
+\section*{Glauber dynamics on hardcore configurations}
+
+\subsection*{Exercises 1-3}
+
+See the file \texttt{Glauber\_hardcore.ipynb}.
+
+\subsection*{Exercise 4}
+\nullstepcounter{subsection}
+
+I do this in the code. See the file \texttt{Glauber\_hardcore.ipynb} for details of the implementation. To justify this theoretically, let $f : \mathcal{X} \to \mathbb{R}$ be a function defined as follows:
+\begin{equation*}
+f(x) = \text{the number of particles in the configuration $x$}
+\end{equation*}
+for any $x \in \mathcal{X}$. Then $f$ is a bounded function; specifically, $0 \leq f(x) \leq |V|$ for any $x \in \mathcal{X}$, where $V$ denotes the vertex set of the graph. Since the uniform distribution $\pi$, defined by
+\begin{equation*}
+\pi(x) = \frac{1}{|\mathcal{X}|} \quad \text{for any $x \in \mathcal{X}$}
+\end{equation*}
+is stationary for the chain, the Ergodic Theorem implies that
+\begin{equation} \label{eq:1}
+\Prob_{x_0}\left\{\lim_{T \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} f(X_t) = E_\pi(f) \right\} = 1,
+\end{equation}
+where $x_0$ denotes the starting configuration of the chain. But note that
+\begin{equation*}
+E_\pi(f) = \sum_{x \in \mathcal{X}} \pi(x) f(x) = \sum_{x \in \mathcal{X}} \frac{1}{|\mathcal{X}|} f(x),
+\end{equation*}
+the average number of particles over all hardcore configurations. Thus if we use the code to compute an observed value of the average $\frac{1}{T} \sum_{t=0}^{T-1} f(X_t)$ in (\ref{eq:1}) for a large value of $T$, then we expect this value to be close to the true average $E_\pi(f)$.
+
+\end{document}
